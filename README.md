@@ -38,7 +38,7 @@ Abre esta carpeta con **Unity 6000.5.4f1** desde Unity Hub. La música de fondo 
 
 ## Integrantes
 
-Joel Ángel Ocaño Ore · Felipe Valentino Calderón Hurtado · Javier Josué Gómez
+Joel Ángel Ocaño Ore · Felipe Valentino Calderón Hurtado · Javier Josué Gómez · Paulo Miguel Armijo Rojas
 
 ## Créditos
 
