@@ -6,8 +6,8 @@ Videojuego 3D de habilidad y estrategia hecho en **Unity 6 (6000.5.4f1)**. Dos e
 
 Ve a **[Releases](../../releases/latest)** y descarga:
 
-- **ArenaDelGarfio_Instalador_v1.0.exe**: instalador para Windows (crea accesos directos y desinstalador).
-- **ArenaDelGarfio_Portable_v1.0.zip**: versión sin instalar; descomprime y abre `ArenaDelGarfio.exe`.
+- **ArenaDelGarfio_Instalador_v1.1.exe**: instalador para Windows (crea accesos directos y desinstalador).
+- **ArenaDelGarfio_Portable_v1.1.zip**: versión sin instalar; descomprime y abre `ArenaDelGarfio.exe`.
 
 > Windows puede mostrar "Windows protegió su PC" porque el instalador no está firmado. Haz clic en **Más información → Ejecutar de todas formas**.
 
