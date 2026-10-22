@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2012803275826429993
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8517371356932200254}
+  - component: {fileID: 3047467647679429381}
+  m_Layer: 0
+  m_Name: _Partida
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8517371356932200254
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2012803275826429993}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3047467647679429381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2012803275826429993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c8439a16bc221a49b3f1e0cf9e1a910, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  killsToWinRound: 10
+  roundsToWin: 2
+  respawnDelay: 5
+  countdownSeconds: 3
+  playerTeam: 0
+  randomRespawn: 1
+  respawnHalfWidth: 16
+  respawnMinDistance: 3
+  respawnMaxDistance: 11
+  showRespawnTimers: 1
+  goldPerKill: 100
+  goldPerRound: 150
+  goldPerSecond: 5
+  baseDifficulty: 3
+  increasePerRound: 1
+  leadForExtraDifficulty: 2
+  botItems:
+  - {fileID: 11400000, guid: 529581111c7e54c4c9395c6415f1c6af, type: 2}
+  - {fileID: 11400000, guid: b4305d37a232c0048a2cb0eaf661cac7, type: 2}
+  - {fileID: 11400000, guid: f8deb111efe1e0f4b9760ef9c83dfec7, type: 2}
+  - {fileID: 11400000, guid: ece80a4fbcf1fa548a903daf8bf3a322, type: 2}
+  - {fileID: 11400000, guid: f34ded26661c1204c9688af52afad9b6, type: 2}
+  - {fileID: 11400000, guid: d9d59daab101e5e4585ce7a1e77ca327, type: 2}
+  - {fileID: 11400000, guid: 490bfbd315b8bfe4fa5427079b3f770b, type: 2}
+  - {fileID: 11400000, guid: 79237d470f5e89943baa6ad95f7f80ff, type: 2}
+  deathEffectPrefab: {fileID: 8124350972649052420, guid: ad859899659c49047a5f73c967685017, type: 3}
+  multiKillWindow: 8
