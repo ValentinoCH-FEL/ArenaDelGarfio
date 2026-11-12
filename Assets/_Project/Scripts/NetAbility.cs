@@ -36,12 +36,12 @@ public class NetAbility : MonoBehaviour
 
     void Update()
     {
-        if (!usePlayerInput || player == null) return;
+        if (!usePlayerInput) return;
+        if (player == null) player = GetComponent<PlayerController>();
+        if (player == null) return;
         if (GameManager.Instance != null && !GameManager.Instance.IsPlaying) return;
 
-        bool pressed = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-                    || (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame);
-        if (pressed) TryFire(player.AimPoint);
+        if (InputMap.Net(player.playerIndex)) TryFire(player.AimPoint);
     }
 
     public bool TryFire(Vector3 targetPoint)

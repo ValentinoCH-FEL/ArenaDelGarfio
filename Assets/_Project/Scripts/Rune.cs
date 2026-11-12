@@ -61,6 +61,7 @@ public class Rune : MonoBehaviour
             case RuneType.Oro: if (unit.Wallet != null) unit.Wallet.Add(gold); break;
             case RuneType.Curacion: unit.Health.Heal(unit.Health.Max); break;
         }
+        if (unit.isPlayer) MatchStats.Runes++;
         AudioManager.Play(Sfx.Runa);
         RuneSpawner.NotifyTaken(unit, this);
         Destroy(gameObject);

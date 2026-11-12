@@ -32,5 +32,6 @@
 crashlytics-build.properties
 sysinfo.txt
 
-# Música con licencia de Epidemic Sound (no se redistribuye en el repositorio)
-/Assets/_Project/Audio/Music/*.mp3
+
+# Residuos de la compilación web
+/[Dd]ata/

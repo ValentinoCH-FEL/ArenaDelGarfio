@@ -133,9 +133,35 @@ public class HookProjectile : MonoBehaviour
             Unit unit = hit.collider.GetComponentInParent<Unit>();
             if (unit != null && unit == Ability.Owner) continue; // No engancharse a uno mismo
             if (unit != null && (!unit.IsAlive || !unit.Status.IsTargetable)) continue; // En fase lo atraviesa
+
+            // Escudo activo: el garfio se refleja contra su dueño
+            if (unit != null && unit.IsEnemyOf(Ability.Owner))
+            {
+                ShieldAbility shield = unit.GetComponent<ShieldAbility>();
+                if (shield != null && shield.IsActive)
+                {
+                    Reflect(hit, unit, shield);
+                    return;
+                }
+            }
             HandleHit(hit, unit);
             return;
         }
+    }
+
+    void Reflect(RaycastHit hit, Unit defender, ShieldAbility shield)
+    {
+        IsReturning = true;
+        transform.position += Direction * hit.distance;
+        if (hitEffectPrefab != null) Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        AudioManager.Play(Sfx.GarfioPared);
+        CameraFollow.Shake(0.3f, 0.2f);
+
+        Unit attacker = Ability.Owner;
+        if (defender.isPlayer) MatchStats.Reflects++;
+        if (GameManager.Instance != null) GameManager.Instance.Announce($"{defender.displayName}\n¡GARFIO REFLEJADO!");
+        attacker.Status.Root(shield.reflectRoot);
+        attacker.Health.TakeDamage(shield.reflectDamage, defender.gameObject);
     }
 
     void HandleHit(RaycastHit hit, Unit target)
@@ -154,6 +180,7 @@ public class HookProjectile : MonoBehaviour
         if (Ability.Owner.isPlayer || target.isPlayer) CameraFollow.Shake(0.25f, 0.15f);
 
         // Al enemigo le hace daño (x2 con la runa de doble daño); al aliado solo lo jala (para salvarlo)
+        if (target.IsEnemyOf(Ability.Owner) && Ability.Owner.isPlayer) MatchStats.HooksHit++;
         if (target.IsEnemyOf(Ability.Owner))
             target.Health.TakeDamage(Ability.damage * Ability.Owner.Status.DamageMultiplier, Ability.gameObject);
 

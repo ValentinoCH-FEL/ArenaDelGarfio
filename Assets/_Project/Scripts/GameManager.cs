@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 // Reglas de la partida: cuenta regresiva, kills, rondas, respawn, oro, pausa y fin del juego.
+// Modos: Clásico (rondas), Supervivencia (oleadas y vidas) y 2 Jugadores (un humano en cada orilla).
 public enum GameState { Cuenta, Jugando, FinRonda, FinPartida }
 
 public class GameManager : MonoBehaviour
@@ -31,10 +32,14 @@ public class GameManager : MonoBehaviour
     public float goldPerSecond = 5f;     // Oro que todos ganan cada segundo mientras se juega
 
     [Header("Dificultad de la IA (1 a 6)")]
-    [Range(1, 6)] public int baseDifficulty = 3;   // Arena01: 3 · Arena02: 4
+    [Range(1, 6)] public int baseDifficulty = 3;   // Arena01: 3 · Arena02: 4 · Arena03: 5
     public bool increasePerRound = true;            // +1 por cada ronda nueva
     public int leadForExtraDifficulty = 2;          // Si el jugador saca esta ventaja en kills, +1
     public List<ItemData> botItems = new List<ItemData>(); // Mejoras que los bots compran al final de cada ronda
+
+    [Header("Supervivencia")]
+    public int survivalLives = 3;
+    public int maxSurvivalEnemies = 5;
 
     [Header("Efectos")]
     public GameObject deathEffectPrefab;
@@ -44,11 +49,22 @@ public class GameManager : MonoBehaviour
     public bool IsPlaying => State == GameState.Jugando && !IsPaused;
     public int Round { get; private set; }
 
+    // Supervivencia
+    public const string RecordKey = "record_oleada";
+    public bool IsSurvival => GameSession.Mode == GameMode.Supervivencia;
+    public bool IsVersus => GameSession.Mode == GameMode.Versus;
+    public int Wave { get; private set; } = 1;
+    public int WaveKills { get; private set; }
+    public int WaveGoal => 4 + 2 * (Wave - 1);
+    public int Lives { get; private set; }
+    public bool NewRecord { get; private set; }
+    public static int SurvivalRecord => PlayerPrefs.GetInt(RecordKey, 0);
+
     public event Action OnScoreChanged;
     public event Action<int> OnCountdown;      // 3, 2, 1 y 0 (0 = ¡YA!)
     public event Action<int> OnRoundStarted;
     public event Action<TeamId> OnRoundEnded;  // equipo ganador
-    public event Action<bool> OnGameOver;      // true = ganó el jugador
+    public event Action<bool> OnGameOver;      // true = ganó el jugador (o nuevo récord en supervivencia)
     public event Action<Unit, Unit> OnKill;    // asesino (puede ser null), víctima
 
     public event Action<int> OnDifficultyChanged;
@@ -63,19 +79,31 @@ public class GameManager : MonoBehaviour
 
     readonly int[] kills = new int[2];
     readonly int[] roundsWon = new int[2];
+    readonly HashSet<Unit> registered = new HashSet<Unit>();
     int roundToken;
     int appliedDifficulty = -1;
     readonly Dictionary<Unit, float> respawnAt = new Dictionary<Unit, float>();
     float goldAccumulator;
+    int pendingSpawns;
+    int enemyCounter;
+    float nextSpawnTry;
 
     // El HUD lee esto para mostrar "Reapareces en X" (Time.time en que reaparece cada unidad)
     public IReadOnlyDictionary<Unit, float> RespawnTimes => respawnAt;
 
-    // Oro por segundo para todos (también para los bots, que lo gastan al final de la ronda)
     void Update()
     {
-        if (!IsPlaying || goldPerSecond <= 0f) return;
+        if (!IsPlaying) return;
 
+        // Supervivencia: enemigos extra que entran con cada oleada
+        if (pendingSpawns > 0 && Time.time >= nextSpawnTry)
+        {
+            nextSpawnTry = Time.time + 0.5f;
+            if (SpawnEnemyClone()) pendingSpawns--;
+        }
+
+        // Oro por segundo para todos (también para los bots, que lo gastan al final de la ronda)
+        if (goldPerSecond <= 0f) return;
         goldAccumulator += goldPerSecond * Time.deltaTime;
         if (goldAccumulator < 1f) return;
 
@@ -99,9 +127,11 @@ public class GameManager : MonoBehaviour
     {
         get
         {
+            if (IsSurvival) return Mathf.Clamp(Wave + MenuDifficulty, 1, 6); // Sube con cada oleada
+
             int d = baseDifficulty + DifficultyOffsets[MenuDifficulty] + (increasePerRound ? Mathf.Max(0, Round - 1) : 0);
             int playerLead = kills[(int)playerTeam] - kills[(int)Other(playerTeam)];
-            if (playerLead >= leadForExtraDifficulty) d++;
+            if (playerLead >= leadForExtraDifficulty && !IsVersus) d++;
             return Mathf.Clamp(d, 1, 6);
         }
     }
@@ -110,6 +140,8 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         Time.timeScale = 1f;
+        Lives = survivalLives;
+        MatchStats.Reset();
     }
 
     void OnDestroy()
@@ -119,12 +151,83 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        if (IsVersus) SetupSecondPlayer();
+        ApplyCharacter();
+
+        foreach (var u in Unit.All.ToArray()) Register(u);
+        StartCoroutine(StartRoundRoutine());
+    }
+
+    void Register(Unit unit)
+    {
+        if (unit == null || !registered.Add(unit)) return;
+        unit.Health.OnDied += (h, killer) => HandleDeath(unit, killer);
+    }
+
+    // Modo 2 Jugadores: un bot rojo pasa a ser controlado por el segundo jugador
+    void SetupSecondPlayer()
+    {
         foreach (var u in Unit.All)
         {
-            Unit unit = u;
-            unit.Health.OnDied += (h, killer) => HandleDeath(unit, killer);
+            if (u == null || u.team == playerTeam) continue;
+            BotController bot = u.GetComponent<BotController>();
+            if (bot == null) continue;
+
+            NavMeshAgent agent = u.GetComponent<NavMeshAgent>();
+            CapsuleCollider capsule = u.GetComponent<CapsuleCollider>();
+            DestroyImmediate(bot);
+            if (agent != null) DestroyImmediate(agent);
+            if (capsule != null) DestroyImmediate(capsule);
+
+            var cc = u.gameObject.AddComponent<CharacterController>();
+            cc.center = Vector3.zero;
+            cc.height = 2f;
+            cc.radius = 0.5f;
+            var pc = u.gameObject.AddComponent<PlayerController>();
+            pc.playerIndex = 1;
+
+            var hook = u.GetComponent<HookAbility>(); if (hook != null) hook.usePlayerInput = true;
+            var net = u.GetComponent<NetAbility>(); if (net != null) net.usePlayerInput = true;
+            var dash = u.GetComponent<DashAbility>(); if (dash != null) dash.usePlayerInput = true;
+            var shield = u.GetComponent<ShieldAbility>(); if (shield != null) shield.usePlayerInput = true;
+
+            u.displayName = "Jugador 2";
+            u.Status.Refresh();
+            return;
         }
-        StartCoroutine(StartRoundRoutine());
+    }
+
+    // Aplica al jugador 1 el personaje elegido en el menú (vida, velocidad, garfio y modelo)
+    void ApplyCharacter()
+    {
+        Unit player = Unit.FindPlayer();
+        CharacterInfo info = GameSession.CurrentCharacter;
+        if (player == null || GameSession.Character == 0) return;
+
+        player.Health.AddMaxHealth(info.health - player.Health.Max);
+        var pc = player.GetComponent<PlayerController>();
+        if (pc != null) pc.moveSpeed = info.speed;
+        var hook = player.GetComponent<HookAbility>();
+        if (hook != null) { hook.damage = info.hookDamage; hook.cooldown = info.hookCooldown; }
+
+        GameObject prefab = string.IsNullOrEmpty(info.model) ? null : Resources.Load<GameObject>("Personajes/" + info.model);
+        if (prefab == null) return;
+
+        Transform old = player.transform.Find("Modelo");
+        if (old != null)
+        {
+            old.gameObject.SetActive(false);
+            Destroy(old.gameObject);
+        }
+        GameObject model = Instantiate(prefab, player.transform);
+        model.name = "Modelo";
+        model.transform.localPosition = new Vector3(0f, -1f, 0f);
+        model.transform.localRotation = Quaternion.identity;
+        foreach (Transform t in model.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = player.gameObject.layer;
+
+        var anim = player.GetComponent<CharacterAnimator>();
+        if (anim != null) anim.Rebind();
+        player.Status.Refresh();
     }
 
     IEnumerator StartRoundRoutine()
@@ -174,6 +277,8 @@ public class GameManager : MonoBehaviour
                 if (killer.isPlayer) AudioManager.Play(Sfx.Moneda);
             }
             if (validKill) AnnounceKill(killer);
+            if (validKill && killer.isPlayer) MatchStats.Kills++;
+            if (victim.isPlayer) MatchStats.Deaths++;
         }
         killStreak[victim] = 0;
         if (victim.isPlayer) CameraFollow.Shake(0.5f, 0.3f);
@@ -181,21 +286,122 @@ public class GameManager : MonoBehaviour
 
         ApplyDifficulty();
         OnKill?.Invoke(killer, victim);
-        OnScoreChanged?.Invoke();
         AudioManager.Play(Sfx.Muerte);
         if (deathEffectPrefab != null)
             Instantiate(deathEffectPrefab, victim.transform.position, Quaternion.identity);
 
         victim.gameObject.SetActive(false);
 
-        if (State == GameState.Jugando && kills[(int)scoringTeam] >= killsToWinRound)
+        if (IsSurvival)
         {
-            EndRound(scoringTeam);
-            return;
+            if (State == GameState.Jugando) HandleSurvivalDeath(victim);
+            OnScoreChanged?.Invoke();
+            if (State == GameState.FinPartida) return;
         }
-        respawnAt[victim] = Time.time + respawnDelay;
-        StartCoroutine(RespawnRoutine(victim, roundToken));
+        else
+        {
+            OnScoreChanged?.Invoke();
+            if (State == GameState.Jugando && kills[(int)scoringTeam] >= killsToWinRound)
+            {
+                EndRound(scoringTeam);
+                return;
+            }
+        }
+
+        float delay = RespawnDelayFor(victim);
+        respawnAt[victim] = Time.time + delay;
+        StartCoroutine(RespawnRoutine(victim, roundToken, delay));
     }
+
+    float RespawnDelayFor(Unit unit)
+    {
+        if (!IsSurvival) return respawnDelay;
+        if (unit.team == playerTeam) return 3f;
+        return Mathf.Max(1.5f, 4f - 0.4f * Wave); // Los enemigos vuelven cada vez más rápido
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Supervivencia
+    // ---------------------------------------------------------------------------------------------
+
+    void HandleSurvivalDeath(Unit victim)
+    {
+        if (victim.team != playerTeam)
+        {
+            WaveKills++;
+            if (WaveKills >= WaveGoal) NextWave();
+        }
+        else if (victim.isPlayer)
+        {
+            Lives--;
+            if (Lives <= 0) EndSurvival();
+            else Announce(Lives == 1 ? "¡Te queda 1 vida!" : $"Te quedan {Lives} vidas");
+        }
+    }
+
+    void NextWave()
+    {
+        Wave++;
+        WaveKills = 0;
+
+        int enemies = 0;
+        foreach (var u in Unit.All)
+            if (u != null && u.team != playerTeam) enemies++;
+        int wanted = Mathf.Min(2 + Wave / 2, maxSurvivalEnemies);
+        pendingSpawns = Mathf.Max(0, wanted - enemies);
+
+        foreach (var u in Unit.All)
+            if (u != null && u.team == playerTeam && u.Wallet != null) u.Wallet.Add(goldPerRound);
+
+        ApplyDifficulty();
+        Announce($"¡OLEADA {Wave}!");
+        AudioManager.Play(Sfx.InicioRonda);
+    }
+
+    // Copia a un enemigo vivo para sumar uno más a la oleada
+    bool SpawnEnemyClone()
+    {
+        Unit source = null;
+        foreach (var u in Unit.All)
+        {
+            if (u == null || u.team == playerTeam || !u.IsAlive || !u.Status.CanMove) continue;
+            if (u.GetComponent<BotController>() == null) continue;
+            source = u;
+            break;
+        }
+        if (source == null) return false;
+
+        GameObject go = Instantiate(source.gameObject);
+        Unit unit = go.GetComponent<Unit>();
+        enemyCounter++;
+        unit.displayName = "Refuerzo " + enemyCounter;
+        go.name = unit.displayName;
+        Register(unit);
+
+        unit.Revive(RandomRespawnPoint(unit, out Quaternion rot), rot);
+        BotController bot = go.GetComponent<BotController>();
+        if (bot != null) bot.ApplyDifficulty(Difficulty);
+        return true;
+    }
+
+    void EndSurvival()
+    {
+        State = GameState.FinPartida;
+        StopEverything();
+
+        if (Wave > 1 && Wave > SurvivalRecord) // Llegar solo a la oleada 1 no cuenta como récord
+        {
+            NewRecord = true;
+            PlayerPrefs.SetInt(RecordKey, Wave);
+            PlayerPrefs.Save();
+        }
+        OnGameOver?.Invoke(NewRecord);
+        AudioManager.Play(NewRecord ? Sfx.Victoria : Sfx.Derrota);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    public void Announce(string message) => OnAnnouncement?.Invoke(message);
 
     void AnnounceKill(Unit killer)
     {
@@ -219,11 +425,11 @@ public class GameManager : MonoBehaviour
         if (message != null) OnAnnouncement?.Invoke($"{killer.displayName}\n{message}");
     }
 
-    IEnumerator RespawnRoutine(Unit unit, int token)
+    IEnumerator RespawnRoutine(Unit unit, int token, float delay)
     {
-        yield return new WaitForSeconds(respawnDelay);
+        yield return new WaitForSeconds(delay);
         respawnAt.Remove(unit);
-        if (token != roundToken || State == GameState.FinPartida) yield break;
+        if (unit == null || token != roundToken || State == GameState.FinPartida) yield break;
 
         if (randomRespawn) unit.Revive(RandomRespawnPoint(unit, out Quaternion rot), rot);
         else unit.ResetToSpawn();
@@ -287,7 +493,7 @@ public class GameManager : MonoBehaviour
             State = GameState.FinPartida;
             bool playerWon = winner == playerTeam;
             OnGameOver?.Invoke(playerWon);
-            AudioManager.Play(playerWon ? Sfx.Victoria : Sfx.Derrota);
+            AudioManager.Play(playerWon || IsVersus ? Sfx.Victoria : Sfx.Derrota);
         }
         else
         {
@@ -313,7 +519,8 @@ public class GameManager : MonoBehaviour
             if (u == null) continue;
             BotController bot = u.GetComponent<BotController>();
             if (bot == null) continue;
-            bot.ApplyDifficulty(u.team == playerTeam ? Mathf.Max(1, d - 1) : d);
+            bool ally = u.team == playerTeam && !IsVersus;
+            bot.ApplyDifficulty(ally ? Mathf.Max(1, d - 1) : d);
         }
 
         OnDifficultyChanged?.Invoke(d);

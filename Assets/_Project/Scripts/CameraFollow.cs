@@ -19,6 +19,14 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
+        // Con 2 jugadores la cámara queda fija y muestra toda la arena
+        if (GameSession.Mode == GameMode.Versus)
+        {
+            target = null;
+            transform.SetPositionAndRotation(new Vector3(0f, 28f, -16.5f), Quaternion.Euler(60f, 0f, 0f));
+            return;
+        }
+
         if (target == null)
         {
             Unit player = Unit.FindPlayer();

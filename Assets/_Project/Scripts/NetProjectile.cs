@@ -48,6 +48,13 @@ public class NetProjectile : MonoBehaviour
 
             if (unit != null)
             {
+                ShieldAbility shield = unit.GetComponent<ShieldAbility>();
+                if (shield != null && shield.IsActive) // El escudo bloquea la red
+                {
+                    AudioManager.Play(Sfx.GarfioPared);
+                    Destroy(gameObject);
+                    return;
+                }
                 unit.Status.Root(ability.rootDuration);
                 unit.Health.TakeDamage(ability.damage, ability.gameObject);
             }

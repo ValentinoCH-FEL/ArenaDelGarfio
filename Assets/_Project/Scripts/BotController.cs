@@ -34,6 +34,7 @@ public class BotController : MonoBehaviour
     HookAbility hook;
     NetAbility net;
     DashAbility dash;
+    ShieldAbility shield;
 
     Unit target;
     float nextThink, canShootAt, nextStrafe;
@@ -195,7 +196,10 @@ public class BotController : MonoBehaviour
 
     void TryDodge()
     {
-        if (dash == null || !dash.IsReady) return;
+        if (shield == null) shield = GetComponent<ShieldAbility>();
+        bool dashReady = dash != null && dash.IsReady;
+        bool shieldReady = shield != null && shield.IsReady && level >= 3; // Los bots fáciles no usan escudo
+        if (!dashReady && !shieldReady) return;
 
         foreach (var h in HookProjectile.Active)
         {
@@ -208,9 +212,8 @@ public class BotController : MonoBehaviour
 
             if (Random.value > dodgeChance) return;
 
-            Vector3 side = Vector3.Cross(Vector3.up, h.Direction);
-            if (Random.value < 0.5f) side = -side;
-            dash.TryDash(side);
+            if (shieldReady && (!dashReady || Random.value < 0.35f)) shield.TryActivate();
+            else if (dashReady) dash.TryDash(transform.forward);
             return;
         }
     }

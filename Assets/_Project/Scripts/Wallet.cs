@@ -7,6 +7,7 @@ public class Wallet : MonoBehaviour
     [SerializeField] int startingGold = 0;
 
     public int Gold { get; private set; }
+    public int TotalEarned { get; private set; } // Para las estadísticas del final
     public event Action<int> OnGoldChanged;
 
     void Awake()
@@ -17,6 +18,7 @@ public class Wallet : MonoBehaviour
     public void Add(int amount)
     {
         Gold += amount;
+        if (amount > 0) TotalEarned += amount;
         OnGoldChanged?.Invoke(Gold);
     }
 

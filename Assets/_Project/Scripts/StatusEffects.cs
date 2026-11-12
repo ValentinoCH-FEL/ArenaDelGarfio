@@ -36,17 +36,27 @@ public class StatusEffects : MonoBehaviour
 
     void Awake()
     {
+        unit = GetComponent<Unit>();
+        Refresh();
+        if (rootVisual != null) rootVisual.SetActive(false);
+    }
+
+    // Vuelve a leer los componentes de movimiento y los modelos (al cambiar de personaje o de control)
+    public void Refresh()
+    {
         cc = GetComponent<CharacterController>();
         agent = GetComponent<NavMeshAgent>();
-        unit = GetComponent<Unit>();
 
         // Solo guardamos los renderers que ya estaban encendidos
+        renderers.Clear();
         foreach (var r in GetComponentsInChildren<Renderer>(true))
-            if (r.enabled && (rootVisual == null || !r.transform.IsChildOf(rootVisual.transform)))
-                renderers.Add(r);
+        {
+            if (!r.enabled || r.name == "EscudoVisual") continue;
+            if (rootVisual != null && r.transform.IsChildOf(rootVisual.transform)) continue;
+            renderers.Add(r);
+        }
         canvases = GetComponentsInChildren<Canvas>(true);
-
-        if (rootVisual != null) rootVisual.SetActive(false);
+        invisible = false;
     }
 
     void Update()
@@ -63,7 +73,8 @@ public class StatusEffects : MonoBehaviour
     void UpdateVisibility()
     {
         Unit player = Unit.FindPlayer();
-        bool hiddenInBush = IsHidden && unit != null && player != null && unit.IsEnemyOf(player);
+        bool hiddenInBush = IsHidden && unit != null && player != null && unit.IsEnemyOf(player)
+                            && GameSession.Mode != GameMode.Versus; // Con 2 jugadores en una pantalla nadie se esconde
         bool hide = IsPhased || hiddenInBush;
         if (hide == invisible) return;
 

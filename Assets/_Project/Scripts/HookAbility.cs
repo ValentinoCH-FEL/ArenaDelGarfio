@@ -39,12 +39,12 @@ public class HookAbility : MonoBehaviour
 
     void Update()
     {
-        if (!usePlayerInput || player == null) return;
+        if (!usePlayerInput) return;
+        if (player == null) player = GetComponent<PlayerController>();
+        if (player == null) return;
         if (GameManager.Instance != null && !GameManager.Instance.IsPlaying) return;
 
-        bool pressed = (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
-                    || (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame);
-        if (pressed) TryFire(player.AimPoint);
+        if (InputMap.Hook(player.playerIndex)) TryFire(player.AimPoint);
     }
 
     public bool TryFire(Vector3 targetPoint)
@@ -63,6 +63,7 @@ public class HookAbility : MonoBehaviour
         activeHook.Launch(this, dir);
 
         nextReadyTime = Time.time + cooldown;
+        if (Owner != null && Owner.isPlayer) MatchStats.HooksFired++;
         OnFired?.Invoke();
         AudioManager.Play(Sfx.GarfioLanzar);
         return true;

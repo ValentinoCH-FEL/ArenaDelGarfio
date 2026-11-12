@@ -39,6 +39,8 @@ public class HUD : MonoBehaviour
     HookAbility hook;
     NetAbility net;
     DashAbility dash;
+    ShieldAbility shield;
+    TMP_Text shieldText;
     GameManager gm;
     readonly Queue<string> feed = new Queue<string>();
     readonly Queue<string> announcements = new Queue<string>();
@@ -58,6 +60,7 @@ public class HUD : MonoBehaviour
             hook = player.GetComponent<HookAbility>();
             net = player.GetComponent<NetAbility>();
             dash = player.GetComponent<DashAbility>();
+            shield = player.GetComponent<ShieldAbility>();
 
             player.Health.OnChanged += UpdateHealth;
             UpdateHealth(player.Health.Current, player.Health.Max);
@@ -95,9 +98,21 @@ public class HUD : MonoBehaviour
         if (centerText != null && centerText.text != "" && Time.unscaledTime >= centerHideTime)
             centerText.text = "";
 
+        UpdateShield();
         UpdateAnnouncements();
         UpdateRespawnTexts();
         UpdateGoldAndBuffs();
+    }
+
+    void UpdateShield()
+    {
+        if (shieldText == null) return;
+        if (shield == null) { shieldText.text = ""; return; }
+        string state = shield.IsActive ? "<color=#4DF2FF>ACTIVO</color>"
+                     : shield.IsReady ? "<color=#7CFC8A>listo</color>"
+                     : $"<color=#FF8A8A>{Mathf.CeilToInt(shield.SecondsLeft)} s</color>";
+        string text = "ESCUDO\n<size=70%><color=#F28C26>F</color></size>\n" + state;
+        if (shieldText.text != text) shieldText.text = text;
     }
 
     // Los anuncios salen de a uno (cola), nunca dos a la vez
@@ -164,6 +179,14 @@ public class HUD : MonoBehaviour
     void UpdateScore()
     {
         if (gm == null) return;
+        if (gm.IsSurvival)
+        {
+            if (scoreText != null)
+                scoreText.text = $"<color=#F28C26>OLEADA {gm.Wave}</color>   <size=70%>{gm.WaveKills}/{gm.WaveGoal} kills   ·   Vidas: {gm.Lives}</size>";
+            if (roundText != null)
+                roundText.text = $"Supervivencia  ·  Récord: oleada {GameManager.SurvivalRecord}  ·  {GameManager.DifficultyNames[GameManager.MenuDifficulty]} (IA {gm.Difficulty}/6)";
+            return;
+        }
         if (scoreText != null)
             scoreText.text = $"<color=#4FA3FF>AZUL {gm.GetKills(TeamId.Azul)}</color>   -   " +
                              $"<color=#FF5A5A>{gm.GetKills(TeamId.Rojo)} ROJO</color>";
@@ -233,6 +256,11 @@ public class HUD : MonoBehaviour
             announceText = MakeText("Anuncios", parent, font, new Vector2(0.5f, 1), new Vector2(0, -135), new Vector2(1100, 110), 46, TextAlignmentOptions.Top, Accent);
         if (respawnText == null)
             respawnText = MakeText("Reaparicion", parent, font, new Vector2(0.5f, 0.5f), new Vector2(0, -40), new Vector2(1000, 130), 52, TextAlignmentOptions.Center, new Color(1f, 0.35f, 0.3f));
+        if (shieldText == null)
+        {
+            shieldText = MakeText("Escudo", parent, font, new Vector2(0.5f, 0f), new Vector2(300f, 24f), new Vector2(130f, 120f), 22, TextAlignmentOptions.Center, Color.white);
+            shieldText.textWrappingMode = TextWrappingModes.NoWrap;
+        }
         if (botRespawnText == null)
             botRespawnText = MakeText("ReaparicionBots", parent, font, new Vector2(0, 1), new Vector2(24, -20), new Vector2(460, 150), 22, TextAlignmentOptions.TopLeft, Color.white);
     }

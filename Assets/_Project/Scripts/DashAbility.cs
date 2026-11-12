@@ -29,11 +29,12 @@ public class DashAbility : MonoBehaviour
 
     void Update()
     {
-        if (!usePlayerInput || player == null) return;
+        if (!usePlayerInput) return;
+        if (player == null) player = GetComponent<PlayerController>();
+        if (player == null) return;
         if (GameManager.Instance != null && !GameManager.Instance.IsPlaying) return;
 
-        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-            TryDash(transform.forward);
+        if (InputMap.Phase(player.playerIndex)) TryDash(transform.forward);
     }
 
     // La dirección ya no se usa (la fase no te mueve); se deja para que los bots la sigan llamando igual

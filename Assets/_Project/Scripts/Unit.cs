@@ -35,6 +35,10 @@ public class Unit : MonoBehaviour
         SpawnRotation = transform.rotation;
         lastPosition = transform.position;
         if (!All.Contains(this)) All.Add(this);
+
+        // Todos los que tienen garfio también tienen escudo
+        if (GetComponent<HookAbility>() != null && GetComponent<ShieldAbility>() == null)
+            gameObject.AddComponent<ShieldAbility>();
     }
 
     void OnDestroy() { All.Remove(this); }
