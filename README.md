@@ -2,6 +2,10 @@
 
 Videojuego 3D de habilidad, estrategia y **memoria** hecho en **Unity 6 (6000.5.4f1)**. Dos clanes separados por un río maldito: nadie puede cruzarlo, así que la única forma de atacar es lanzar el garfio, atrapar al enemigo y arrastrarlo a tu lado.
 
+## Jugar en línea
+
+**https://valentinoch-fel.github.io/ArenaDelGarfio/**: se juega en el navegador, sin descargar nada (computadora con teclado y mouse).
+
 ## Descargar y jugar (Mac)
 
 En **[Releases](../../releases/latest)** descarga **ArenaDelGarfio_Instalador_Mac_v3.0.dmg**, ábrelo y arrastra el juego a Aplicaciones.
