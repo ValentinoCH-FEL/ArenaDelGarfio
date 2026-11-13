@@ -27,6 +27,7 @@ public class Rune : MonoBehaviour
     public string DisplayName => Names[(int)Type];
 
     Vector3 basePosition;
+    Color baseColor;
 
     void OnEnable() { Active.Add(this); }
     void OnDisable() { Active.Remove(this); }
@@ -35,7 +36,19 @@ public class Rune : MonoBehaviour
     {
         Type = type;
         basePosition = transform.position;
-        if (visual != null) visual.material.SetColor("_BaseColor", Colors[(int)type]);
+        SetColor(Colors[(int)type]);
+    }
+
+    // Modo Memoria: cada runa tiene su color y se enciende al mostrar la secuencia
+    public void SetColor(Color color)
+    {
+        baseColor = color;
+        if (visual != null) visual.material.SetColor("_BaseColor", color);
+    }
+
+    public void SetHighlight(Color color, bool on)
+    {
+        if (visual != null) visual.material.SetColor("_BaseColor", on ? color : baseColor);
     }
 
     void Update()

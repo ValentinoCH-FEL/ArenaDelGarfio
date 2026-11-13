@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 // Lo que el jugador elige en el menú (modo, personaje) y los controles de cada jugador.
-public enum GameMode { Clasico = 0, Supervivencia = 1, Versus = 2 }
+public enum GameMode { Clasico = 0, Supervivencia = 1, Versus = 2, Memoria = 3 }
 
 public class CharacterInfo
 {
@@ -15,12 +15,13 @@ public static class GameSession
     public const string ModeKey = "modo";
     public const string CharacterKey = "personaje";
 
-    public static readonly string[] ModeNames = { "Clásico", "Supervivencia", "2 Jugadores" };
+    public static readonly string[] ModeNames = { "Clásico", "Supervivencia", "2 Jugadores", "Memoria" };
     public static readonly string[] ModeDescriptions =
     {
         "Clásico: tú y un aliado contra 2 bots. 10 kills ganan la ronda, mejor de 3.",
         "Supervivencia: oleadas cada vez más fuertes. Tienes 3 vidas. ¿Hasta qué oleada llegas?",
         "2 Jugadores en la misma PC. J2: flechas, punto = garfio, coma = red, guion = fase, M = escudo (o un mando).",
+        "Memoria: las runas del río se encienden en un orden. Memorízalo y engánchalas con el garfio en el mismo orden.",
     };
 
     public static readonly CharacterInfo[] Characters =
@@ -35,7 +36,7 @@ public static class GameSession
 
     public static GameMode Mode
     {
-        get => (GameMode)Mathf.Clamp(PlayerPrefs.GetInt(ModeKey, 0), 0, 2);
+        get => (GameMode)Mathf.Clamp(PlayerPrefs.GetInt(ModeKey, 0), 0, 3);
         set { PlayerPrefs.SetInt(ModeKey, (int)value); PlayerPrefs.Save(); }
     }
 
@@ -52,10 +53,13 @@ public static class GameSession
 public static class MatchStats
 {
     public static int Kills, Deaths, HooksFired, HooksHit, Reflects, Runes;
+    public static int MemoryHits, MemoryErrors, MemorySpan; // Modo Memoria
 
     public static int Accuracy => HooksFired == 0 ? 0 : Mathf.RoundToInt(100f * HooksHit / HooksFired);
 
-    public static void Reset() { Kills = Deaths = HooksFired = HooksHit = Reflects = Runes = 0; }
+    public static int MemoryAccuracy => MemoryHits + MemoryErrors == 0 ? 0 : Mathf.RoundToInt(100f * MemoryHits / (MemoryHits + MemoryErrors));
+
+    public static void Reset() { Kills = Deaths = HooksFired = HooksHit = Reflects = Runes = MemoryHits = MemoryErrors = MemorySpan = 0; }
 }
 
 // Controles. Jugador 1: WASD + mouse. Jugador 2: flechas y las teclas punto, coma, guion y M, o un mando.

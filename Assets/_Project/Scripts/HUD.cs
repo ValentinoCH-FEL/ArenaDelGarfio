@@ -179,6 +179,19 @@ public class HUD : MonoBehaviour
     void UpdateScore()
     {
         if (gm == null) return;
+        MemoryMode memory = MemoryMode.Instance;
+        if (gm.IsMemory && memory != null)
+        {
+            string phase = memory.CurrentPhase == MemoryMode.Phase.Memoriza ? "<color=#4DF2FF>MEMORIZA</color>"
+                         : memory.CurrentPhase == MemoryMode.Phase.Retencion ? "<color=#C9D3E6>RECUERDA...</color>"
+                         : memory.CurrentPhase == MemoryMode.Phase.Repite ? $"<color=#7CFC8A>REPITE {memory.Progress}/{memory.SequenceLength}</color>"
+                         : "<color=#C9D3E6>...</color>";
+            if (scoreText != null)
+                scoreText.text = $"<color=#F28C26>NIVEL {memory.Level}</color>   {phase}   <size=70%>Vidas: {memory.Lives}</size>";
+            if (roundText != null)
+                roundText.text = $"Runas del Ancla  ·  Secuencia de {memory.SequenceLength}  ·  Récord: {MemoryMode.Record}  ·  {GameManager.DifficultyNames[GameManager.MenuDifficulty]}";
+            return;
+        }
         if (gm.IsSurvival)
         {
             if (scoreText != null)

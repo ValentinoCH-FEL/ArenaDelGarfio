@@ -1,6 +1,12 @@
 # Arena del Garfio
 
-Videojuego 3D de habilidad y estrategia hecho en **Unity 6 (6000.5.4f1)**. Dos clanes separados por un río maldito: nadie puede cruzarlo, así que la única forma de atacar es lanzar el garfio, atrapar al enemigo y arrastrarlo a tu lado.
+Videojuego 3D de habilidad, estrategia y **memoria** hecho en **Unity 6 (6000.5.4f1)**. Dos clanes separados por un río maldito: nadie puede cruzarlo, así que la única forma de atacar es lanzar el garfio, atrapar al enemigo y arrastrarlo a tu lado.
+
+## Descargar y jugar (Mac)
+
+En **[Releases](../../releases/latest)** descarga **ArenaDelGarfio_Instalador_Mac_v3.0.dmg**, ábrelo y arrastra el juego a Aplicaciones.
+
+> La primera vez ábrelo con **clic derecho → Abrir** (la app no está firmada por Apple). Requisitos: macOS 12 o superior.
 
 ## Descargar y jugar (Windows)
 
@@ -36,16 +42,24 @@ El jugador 2 también puede usar un mando.
 
 ## Características
 
-- **3 modos:** Clásico (tú y un aliado contra 2 bots, mejor de 3 rondas), Supervivencia (oleadas y récord) y 2 Jugadores en la misma PC.
+- **4 modos:** Clásico (tú y un aliado contra 2 bots, mejor de 3 rondas), Supervivencia (oleadas y récord), 2 Jugadores en la misma PC y **Memoria**.
+- **Modo Memoria · Runas del Ancla (v3.0):** 6 runas del río se encienden en un orden; memorízalo y engánchalas con el garfio en el mismo orden. Cada nivel suma una runa (como la prueba de bloques de Corsi). 3 vidas, récord y estadísticas de aciertos y precisión. Código en `Assets/_Project/Scripts/MemoryMode.cs`.
 - **3 personajes:** Equilibrado, Veloz y Tanque, con distinta vida, velocidad y garfio.
 - **3 arenas:** Pradera, Desierto y Nieve (con bloques de hielo que se mueven).
 - **Escudo** que devuelve el garfio al que lo lanzó.
 - IA con 6 niveles que sube por ronda y cuando vas ganando.
 - Tienda con 8 mejoras, runas en el río, rachas y estadísticas al final de la partida.
 
+## Presentación y capturas
+
+La presentación del modo Memoria (PPTX y PDF) y las capturas del juego están en [`Entrega/Memoria`](Entrega/Memoria).
+
 ## Abrir el proyecto
 
 Abre esta carpeta con **Unity 6000.5.4f1** desde Unity Hub.
+
+- Compilar para Mac desde la terminal: `Unity -batchmode -quit -projectPath . -buildTarget StandaloneOSX -executeMethod MacBuild.Build` (sale en `Build/Mac`).
+- Prueba automática del modo Memoria: abre el juego compilado con `-capturas <carpeta>`; juega solo, guarda capturas y escribe `[AUTOTEST]` en el registro.
 
 ## Integrantes
 

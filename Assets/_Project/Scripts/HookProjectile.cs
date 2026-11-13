@@ -124,6 +124,12 @@ public class HookProjectile : MonoBehaviour
                 if (rune.IsGrabbed) continue;
                 IsReturning = true;
                 transform.position += Direction * hit.distance;
+                if (MemoryMode.Instance != null)
+                {
+                    if (Ability.Owner.isPlayer) MemoryMode.Instance.OnRuneHooked(rune);
+                    AudioManager.Play(Sfx.GarfioImpacto);
+                    return;
+                }
                 grabbedRune = rune;
                 rune.Grab();
                 AudioManager.Play(Sfx.GarfioImpacto);

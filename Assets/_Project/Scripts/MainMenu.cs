@@ -32,6 +32,7 @@ public class MainMenu : MonoBehaviour
         "Tú y un aliado contra 2 bots. 10 kills ganan la ronda, mejor de 3.",
         "Oleadas cada vez más fuertes. Tienes 3 vidas.",
         "Uno en cada orilla, en la misma PC. El jugador 2 usa las flechas o un mando.",
+        "Memoriza el orden en que se encienden las runas y engánchalas igual. Cada nivel, una runa más.",
     };
     static readonly string[] DifficultyShort =
     {
@@ -163,8 +164,10 @@ public class MainMenu : MonoBehaviour
         if (stepButtons[0].Count > 1)
         {
             string record = GameManager.SurvivalRecord > 0 ? $" Tu récord: oleada {GameManager.SurvivalRecord}." : "";
-            SetCard(stepButtons[0][1], GameSession.ModeNames[1], ModeShort[1] + record);
+            SetCard(stepButtons[0][1], GameSession.ModeNames[1], ModeShort[1] + record, 32f);
         }
+        if (stepButtons[0].Count > 3 && MemoryMode.Record > 0)
+            SetCard(stepButtons[0][3], GameSession.ModeNames[3], ModeShort[3] + $" Tu récord: {MemoryMode.Record} runas.", 32f);
     }
 
     void SetPanels(bool main, bool levels, bool controls, bool click)
@@ -244,13 +247,19 @@ public class MainMenu : MonoBehaviour
         float[] xs = { -410f, 0f, 410f };
         const float y = -150f;
 
+        // Paso 1: 4 modos (Clásico, Supervivencia, 2 Jugadores y Memoria), tarjetas más angostas
+        float[] modeXs = { -480f, -160f, 160f, 480f };
+        for (int i = 0; i < GameSession.ModeNames.Length; i++)
+        {
+            int index = i;
+            Button mode = Clone(template, "Modo_" + i, new Vector2(modeXs[i], y), new Vector2(300f, 280f), () => SetMode(index));
+            SetCard(mode, GameSession.ModeNames[i], ModeShort[i], 32f);
+            stepButtons[0].Add(mode);
+        }
+
         for (int i = 0; i < 3; i++)
         {
             int index = i;
-
-            Button mode = Clone(template, "Modo_" + i, new Vector2(xs[i], y), size, () => SetMode(index));
-            SetCard(mode, GameSession.ModeNames[i], ModeShort[i]);
-            stepButtons[0].Add(mode);
 
             CharacterInfo c = GameSession.Characters[i];
             Button character = Clone(template, "Personaje_" + i, new Vector2(xs[i], y), size, () => SetCharacter(index));
@@ -297,13 +306,13 @@ public class MainMenu : MonoBehaviour
     }
 
     // Tarjeta: nombre grande arriba y una descripción corta debajo
-    static void SetCard(Button b, string name, string description)
+    static void SetCard(Button b, string name, string description, float size = 44f)
     {
         TMP_Text text = b != null ? b.GetComponentInChildren<TMP_Text>(true) : null;
         if (text == null) return;
 
         text.enableAutoSizing = false;
-        text.fontSize = 44;
+        text.fontSize = size;
         text.textWrappingMode = TextWrappingModes.Normal;
         text.alignment = TextAlignmentOptions.Center;
         text.margin = new Vector4(22f, 16f, 22f, 16f);

@@ -5,7 +5,8 @@ using UnityEngine;
 using UnityEngine.AI;
 
 // Reglas de la partida: cuenta regresiva, kills, rondas, respawn, oro, pausa y fin del juego.
-// Modos: Clásico (rondas), Supervivencia (oleadas y vidas) y 2 Jugadores (un humano en cada orilla).
+// Modos: Clásico (rondas), Supervivencia (oleadas y vidas), 2 Jugadores (un humano en cada orilla)
+// y Memoria (el jugador solo, repitiendo secuencias de runas con el garfio; ver MemoryMode).
 public enum GameState { Cuenta, Jugando, FinRonda, FinPartida }
 
 public class GameManager : MonoBehaviour
@@ -53,6 +54,7 @@ public class GameManager : MonoBehaviour
     public const string RecordKey = "record_oleada";
     public bool IsSurvival => GameSession.Mode == GameMode.Supervivencia;
     public bool IsVersus => GameSession.Mode == GameMode.Versus;
+    public bool IsMemory => GameSession.Mode == GameMode.Memoria;
     public int Wave { get; private set; } = 1;
     public int WaveKills { get; private set; }
     public int WaveGoal => 4 + 2 * (Wave - 1);
@@ -153,6 +155,7 @@ public class GameManager : MonoBehaviour
     {
         if (IsVersus) SetupSecondPlayer();
         ApplyCharacter();
+        if (IsMemory) SetupMemory();
 
         foreach (var u in Unit.All.ToArray()) Register(u);
         StartCoroutine(StartRoundRoutine());
@@ -196,6 +199,35 @@ public class GameManager : MonoBehaviour
             return;
         }
     }
+
+    // Modo Memoria: se quitan los bots y las runas al azar; el garfio es más rápido y llega más lejos
+    void SetupMemory()
+    {
+        foreach (var u in Unit.All.ToArray())
+            if (u != null && !u.isPlayer) DestroyImmediate(u.gameObject);
+
+        RuneSpawner spawner = FindAnyObjectByType<RuneSpawner>();
+        Rune prefab = spawner != null ? spawner.RunePrefab : null;
+        if (spawner != null) spawner.enabled = false;
+        goldPerSecond = 0f;
+
+        Unit player = Unit.FindPlayer();
+        var hook = player != null ? player.GetComponent<HookAbility>() : null;
+        if (hook != null) { hook.cooldown = 0.6f; hook.range = 22f; hook.speed = 26f; }
+
+        gameObject.AddComponent<MemoryMode>().Setup(prefab);
+    }
+
+    public void EndMemory(bool newRecord)
+    {
+        State = GameState.FinPartida;
+        StopEverything();
+        NewRecord = newRecord;
+        OnGameOver?.Invoke(newRecord);
+        AudioManager.Play(newRecord ? Sfx.Victoria : Sfx.Derrota);
+    }
+
+    public void NotifyScoreChanged() => OnScoreChanged?.Invoke();
 
     // Aplica al jugador 1 el personaje elegido en el menú (vida, velocidad, garfio y modelo)
     void ApplyCharacter()
@@ -461,8 +493,9 @@ public class GameManager : MonoBehaviour
             if (h != null) Destroy(h.gameObject);
         foreach (var n in NetProjectile.Active.ToArray())
             if (n != null) Destroy(n.gameObject);
-        foreach (var r in Rune.Active.ToArray())
-            if (r != null) Destroy(r.gameObject);
+        if (!IsMemory) // En el modo Memoria las runas son fijas
+            foreach (var r in Rune.Active.ToArray())
+                if (r != null) Destroy(r.gameObject);
 
         foreach (var u in Unit.All)
             if (u != null && u.IsAlive) u.Status.ClearAll();
