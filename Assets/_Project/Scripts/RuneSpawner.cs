@@ -5,6 +5,7 @@ using UnityEngine;
 public class RuneSpawner : MonoBehaviour
 {
     [SerializeField] Rune runePrefab;
+    public Rune RunePrefab => runePrefab;
     public float firstDelay = 10f;
     public float interval = 20f;
     public float halfWidth = 16f;  // Qué tan lejos del centro puede aparecer (eje X)
