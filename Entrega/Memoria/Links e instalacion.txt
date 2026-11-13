@@ -2,6 +2,11 @@ ARENA DEL GARFIO - Modo Memoria (versión 3.0)
 Curso: Diseño y Desarrollo de Juegos Interactivos II
 Docente: David William Cota Sencara
 
+JUGAR EN LÍNEA (sin descargar nada)
+  https://valentinoch-fel.github.io/ArenaDelGarfio/
+  Ábrelo en Chrome, Edge o Safari desde una computadora (teclado y mouse).
+  Espera a que cargue, haz clic para saltar la intro y elige Jugar > Memoria.
+
 LINKS
 - Repositorio (código del proyecto de Unity, presentación y documento):
   https://github.com/ValentinoCH-FEL/ArenaDelGarfio
