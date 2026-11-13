@@ -1,31 +1,42 @@
 ARENA DEL GARFIO - Modo Memoria (versión 3.0)
+Curso: Diseño y Desarrollo de Juegos Interactivos II
+Docente: David William Cota Sencara
 
 LINKS
-- Repositorio (código del proyecto de Unity):
+- Repositorio (código del proyecto de Unity, presentación y documento):
   https://github.com/ValentinoCH-FEL/ArenaDelGarfio
-- Descarga de la versión 3.0 (Mac, con el modo Memoria):
+- Descarga del juego para Mac (versión 3.0, con el modo Memoria):
   https://github.com/ValentinoCH-FEL/ArenaDelGarfio/releases/tag/v3.0
-- Descarga de la versión 2.1 (Windows):
+- Descarga del juego para Windows (versión 2.1):
   https://github.com/ValentinoCH-FEL/ArenaDelGarfio/releases/tag/v2.1
 
 
-CÓMO INSTALAR EN MAC (ArenaDelGarfio_Instalador_Mac_v3.0.dmg)
-1. Haz doble clic en ArenaDelGarfio_Instalador_Mac_v3.0.dmg.
-2. En la ventana que se abre, arrastra "Arena del Garfio" a la carpeta "Aplicaciones".
-3. Abre la carpeta Aplicaciones, haz clic derecho en "Arena del Garfio" y elige "Abrir".
+CÓMO DESCARGAR Y ABRIR EL JUEGO DESDE EL REPOSITORIO
+
+En Mac:
+1. Entra a https://github.com/ValentinoCH-FEL/ArenaDelGarfio
+2. A la derecha, en "Releases", haz clic en "Arena del Garfio v3.0 · Modo Memoria"
+   (o entra directo a https://github.com/ValentinoCH-FEL/ArenaDelGarfio/releases/tag/v3.0).
+3. En "Assets", descarga ArenaDelGarfio_Instalador_Mac_v3.0.dmg.
+4. Haz doble clic en el archivo descargado y arrastra "Arena del Garfio" a la carpeta "Aplicaciones".
+5. Abre la carpeta Aplicaciones, haz clic derecho en "Arena del Garfio" y elige "Abrir".
    La primera vez macOS avisa que la app no es de un desarrollador identificado:
    vuelve a pulsar "Abrir". Las siguientes veces se abre con doble clic.
-Requisitos: macOS 12 o superior.
+   Requisitos: macOS 12 o superior.
 
+En Windows:
+1. Entra a https://github.com/ValentinoCH-FEL/ArenaDelGarfio/releases/tag/v2.1
+2. En "Assets", descarga ArenaDelGarfio_Instalador_v2.1.exe.
+3. Haz doble clic en el instalador. Si aparece "Windows protegió su PC",
+   haz clic en "Más información" y luego en "Ejecutar de todas formas".
+4. Sigue los pasos (Siguiente > Instalar > Finalizar) y abre el juego desde el acceso directo.
+   Requisitos: Windows 10 u 11 de 64 bits.
+   Nota: la versión de Windows es la 2.1 y todavía no tiene el modo Memoria.
 
-CÓMO INSTALAR EN WINDOWS (ArenaDelGarfio_Instalador_v2.1.exe)
-1. Haz doble clic en ArenaDelGarfio_Instalador_v2.1.exe.
-2. Si aparece "Windows protegió su PC", haz clic en "Más información"
-   y luego en "Ejecutar de todas formas".
-3. Sigue los pasos del instalador (Siguiente > Instalar > Finalizar).
-4. Abre el juego desde el acceso directo del Escritorio o del menú Inicio.
-Requisitos: Windows 10 u 11 de 64 bits.
-Nota: la versión de Windows es la 2.1 y todavía no tiene el modo Memoria.
+Abrir el proyecto en Unity (archivos editables):
+1. En el repositorio, haz clic en el botón verde "Code" > "Download ZIP" y descomprímelo.
+2. En Unity Hub: "Add" > "Add project from disk" y elige la carpeta descomprimida.
+3. Ábrelo con Unity 6000.5.4f1. Las escenas están en Assets/_Project/Scenes (empieza por MainMenu).
 
 
 CÓMO JUGAR EL MODO MEMORIA
