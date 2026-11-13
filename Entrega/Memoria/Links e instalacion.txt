@@ -1,0 +1,43 @@
+ARENA DEL GARFIO - Modo Memoria (versión 3.0)
+
+LINKS
+- Repositorio (código del proyecto de Unity):
+  https://github.com/ValentinoCH-FEL/ArenaDelGarfio
+- Descarga de la versión 3.0 (Mac, con el modo Memoria):
+  https://github.com/ValentinoCH-FEL/ArenaDelGarfio/releases/tag/v3.0
+- Descarga de la versión 2.1 (Windows):
+  https://github.com/ValentinoCH-FEL/ArenaDelGarfio/releases/tag/v2.1
+
+
+CÓMO INSTALAR EN MAC (ArenaDelGarfio_Instalador_Mac_v3.0.dmg)
+1. Haz doble clic en ArenaDelGarfio_Instalador_Mac_v3.0.dmg.
+2. En la ventana que se abre, arrastra "Arena del Garfio" a la carpeta "Aplicaciones".
+3. Abre la carpeta Aplicaciones, haz clic derecho en "Arena del Garfio" y elige "Abrir".
+   La primera vez macOS avisa que la app no es de un desarrollador identificado:
+   vuelve a pulsar "Abrir". Las siguientes veces se abre con doble clic.
+Requisitos: macOS 12 o superior.
+
+
+CÓMO INSTALAR EN WINDOWS (ArenaDelGarfio_Instalador_v2.1.exe)
+1. Haz doble clic en ArenaDelGarfio_Instalador_v2.1.exe.
+2. Si aparece "Windows protegió su PC", haz clic en "Más información"
+   y luego en "Ejecutar de todas formas".
+3. Sigue los pasos del instalador (Siguiente > Instalar > Finalizar).
+4. Abre el juego desde el acceso directo del Escritorio o del menú Inicio.
+Requisitos: Windows 10 u 11 de 64 bits.
+Nota: la versión de Windows es la 2.1 y todavía no tiene el modo Memoria.
+
+
+CÓMO JUGAR EL MODO MEMORIA
+Jugar > Memoria > elige personaje, dificultad y mapa.
+Las runas del río se encienden en un orden: memorízalo.
+Cuando diga "¡TU TURNO!", engánchalas con el garfio en el mismo orden
+(apunta con el mouse; garfio con Q o clic izquierdo; muévete con W A S D).
+Cada nivel suma una runa. Tienes 3 vidas.
+
+
+Integrantes:
+Joel Ángel Ocaño Ore
+Felipe Valentino Calderón Hurtado
+Javier Josué Gómez
+Paulo Miguel Armijo Rojas
