@@ -25,6 +25,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource sfxSource;
     [SerializeField] AudioClip menuMusic;
     [SerializeField] AudioClip battleMusic;
+    [SerializeField] bool musicEnabled = false; // Música de fondo apagada
     [SerializeField] string menuSceneName = "MainMenu";
     [SerializeField] SoundEntry[] sounds;
 
@@ -58,6 +59,12 @@ public class AudioManager : MonoBehaviour
 
     public void PlayMusic(AudioClip clip)
     {
+        // Música desactivada: para volver a activarla, poner musicEnabled en true (los efectos de sonido siguen igual)
+        if (!musicEnabled)
+        {
+            if (musicSource != null && musicSource.isPlaying) musicSource.Stop();
+            return;
+        }
         if (clip == null) return;
         if (musicSource.clip == clip && musicSource.isPlaying) return;
         musicSource.clip = clip;
