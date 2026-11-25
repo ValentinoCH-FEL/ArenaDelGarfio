@@ -2,7 +2,7 @@
 
 La reforma cambia el juego a **pixel art** y lo basa en una **historia real del Perú: la guerra civil inca entre Huáscar (Cusco) y Atahualpa (Quito), 1529-1532**.
 
-La parte visual ya está hecha: personajes, escenarios, objetos, la vista 2D y la versión web. Lo que falta está repartido en este documento entre los dos compañeros. Cada tarea indica qué archivos tocar y cuándo se considera terminada.
+La parte visual ya está hecha: personajes, escenarios, objetos, la vista 2D y la versión web. Lo que falta está repartido en **dos partes equilibradas**, una por compañero. Cada tarea indica qué archivos tocar y cuándo se considera terminada.
 
 ---
 
@@ -18,6 +18,7 @@ La parte visual ya está hecha: personajes, escenarios, objetos, la vista 2D y l
 | La versión web (WebGL) se ve bien en el navegador | Se probó en Chrome |
 | Herramienta del editor: menú **Arena del Garfio** | `Assets/_Project/Editor/PixelArtTool.cs` |
 | Archivos base de voz/DNI y de multijugador, con versiones simuladas para probar | `Scripts/Voz/` y `Scripts/Multijugador/` |
+| Modo Memoria · Runas del Ancla, que ya funciona con las runas en pixel art | `Scripts/MemoryMode.cs` |
 
 ### Cómo editar un dibujo
 
@@ -28,20 +29,20 @@ La parte visual ya está hecha: personajes, escenarios, objetos, la vista 2D y l
 
 ---
 
-## Reparto
+## Reparto (equilibrado)
 
-| | Compañero A | Compañero B |
+| | PARTE 1 – Compañero A | PARTE 2 – Compañero B |
 |---|---|---|
-| Tema principal | **Voz y DNI** + historia | **Multijugador en línea** + niveles + publicación |
-| Tareas | V1, V2, V3, V4, H1, H2 | M1, M2, M3, N1, E1, P1, P2 |
-| Entregables de la tarea del curso | Reconocimiento de voz con género según DNI; historia real | Modo multijugador; efectos; hosting remoto; video |
-| Compartido | PPT y documento de calidad (Deming) | PPT y documento de calidad (Deming) |
+| Tarea difícil | **Reconocimiento de voz con género según DNI** (V1-V4) | **Multijugador en línea** (M1-M3) |
+| Tareas medianas | **Portada nueva** (C1) + **historia real** en la intro (H1) | **Niveles en secuencia** (N1) + **efectos** (E1) |
+| Tareas cortas | Textos del juego (H2) | Publicar en GitHub Pages (P1) |
+| Compartido | Mitad del PPT + video (P2) + documento de calidad | Mitad del PPT + video (P2) + documento de calidad |
 
-> Trabajen cada uno en **su propia rama** (`git checkout -b voz` o `git checkout -b multijugador`) y unan los cambios con un Pull Request en GitHub. No editen la misma escena a la vez: las escenas de Unity no se combinan bien.
+> Trabajen cada uno en **su propia rama** (Parte 1: `git checkout -b parte1`, Parte 2: `git checkout -b parte2`) y unan los cambios con un Pull Request en GitHub. No editen la misma escena a la vez: las escenas de Unity no se combinan bien. La Parte 1 trabaja en `MainMenu.unity` y la Parte 2 en las arenas (`Arena01`, `Arena02` y `Arena03`).
 
 ---
 
-## COMPAÑERO A – Voz, DNI e historia
+## PARTE 1 (Compañero A) – Voz, DNI, portada e historia
 
 La tarea del curso pide: **"identificar la voz del usuario y repetir lo hablado teniendo en cuenta su género (H/M) según DNI"**.
 
@@ -72,6 +73,19 @@ La tarea del curso pide: **"identificar la voz del usuario y repetir lo hablado 
 - **Extra (suma puntos):** comandos de voz en la partida: "garfio", "escudo", "red".
 - **Terminado cuando:** se puede demostrar en vivo en la exposición.
 
+### C1. Portada nueva (pantalla de inicio)
+La portada actual es muy simple: fondo oscuro liso, el título en texto naranja y una franja azul. La tarea del curso pide una **pantalla de inicio con el título y los integrantes**, y debe verse en pixel art como el resto del juego.
+- **Qué hacer:**
+  - **Fondo en pixel art:** una escena andina con el río, los muros incas y los dos bandos. Pueden armarla con los sprites de `PixelArt/` o dibujarla en Piskel (1920×1080 o 480×270 ampliada).
+  - **Título con letra pixel**, por ejemplo la fuente **"Press Start 2P"** de Google Fonts (licencia libre OFL). En Unity: Window → TextMeshPro → Font Asset Creator.
+  - **Logo:** el garfio y la chakana.
+  - **Subtítulo:** "La guerra civil inca · Huáscar contra Atahualpa".
+  - **Los 4 integrantes con nombre completo** (hoy solo aparecen las iniciales).
+  - **Personajes animados** en la portada: un guerrero de cada bando con su animación de quieto, usando `SpriteCharacter` o un `Image` que cambie de cuadro.
+  - **Botones** con estilo pixel (borde de 2 px, sin esquinas redondeadas).
+- **Archivos:** `Scenes/MainMenu.unity` (el Canvas del menú) y `Scripts/MainMenu.cs`.
+- **Terminado cuando:** la portada muestra título, logo, fondo en pixel art, los 4 integrantes con nombre completo y personajes animados.
+
 ### H1. Historia real en la intro
 - **Qué:** cambiar los 6 textos de `Scripts/IntroCinematic.cs` (arreglo `Captions`) por la historia de la **guerra civil inca**: la muerte de Huayna Cápac, la división del imperio entre Huáscar (Cusco) y Atahualpa (Quito), las batallas, el río Apurímac y el final en Quipaipán (1532).
 - **Investigar y citar fuentes** (por ejemplo, el Ministerio de Cultura del Perú o libros de historia del Perú). Revisen fechas y nombres; no inventen datos.
@@ -86,7 +100,7 @@ La tarea del curso pide: **"identificar la voz del usuario y repetir lo hablado 
 
 ---
 
-## COMPAÑERO B – Multijugador, niveles, efectos y publicación
+## PARTE 2 (Compañero B) – Multijugador, niveles, efectos y publicación
 
 La tarea del curso pide: **modo MULTIJUGADOR**, **efectos**, **hosting remoto** y **video**.
 
@@ -127,19 +141,23 @@ Hacer los sprites de los efectos en Piskel (pixel art, 16×16 o 32×32) y agrega
 3. Build en una carpeta, por ejemplo `D:\ArenaDelGarfio_Web`.
 4. Subir esa carpeta a la rama **`gh-pages`** del repositorio (o a la carpeta `docs/` de `main`).
 5. En GitHub: Settings → Pages → Source: rama `gh-pages`.
-6. El link será **https://valentinoch-fel.github.io/ArenaDelGarfio/**.
+6. El link será **https://valentinoch-fel.github.io/ArenaDelGarfio/**. Hoy ese link todavía muestra la versión 3D anterior: hay que reemplazarla por la de pixel art.
+   - Ya existe un script para compilar la web: `Assets/Editor/WebBuild.cs` (sale en `Build/Web`).
 - **Terminado cuando:** el link abre el juego desde otra PC o desde una Mac.
-
-### P2. Video y pantallazos
-- Grabar con **OBS Studio** un video de 3 a 5 minutos: intro, registro DNI y voz, menú, los 3 niveles, efectos y multijugador.
-- Pantallazos JPG/PNG de cada pantalla en la carpeta `Capturas/`. Ya hay algunos.
-- Subir el video a YouTube o Drive con acceso público y poner el link en el README.
 
 ---
 
-## Compartido: PPT y calidad total (Deming)
+## Compartido: video, PPT y calidad total (Deming)
 
-- **PPT** con la estructura que pide el curso. Pueden partir de `Arena del Garfio - Presentacion Avance 2.pptx`.
+### P2. Video y pantallazos (los dos)
+- Grabar con **OBS Studio** un video de 3 a 5 minutos: intro, registro DNI y voz, menú, los 3 niveles, efectos y multijugador.
+- Pantallazos JPG/PNG de cada pantalla en la carpeta `Capturas/`. Ya hay algunos.
+- Subir el video a YouTube o Drive con acceso público y poner el link en el README.
+- **Reparto del video:** la Parte 1 graba voz, portada e historia; la Parte 2 graba niveles, efectos y multijugador. Luego lo unen en un solo video.
+
+### PPT y calidad total
+
+- **PPT** con la estructura que pide el curso. Pueden partir de `Arena del Garfio - Presentacion Avance 2.pptx`. Cada uno hace las diapositivas de su parte.
 - **Calidad total – Deming:** documentar el ciclo **PDCA** de esta reforma (qué se planificó, qué se hizo, cómo se verificó y qué se corrigió) y los **14 puntos** aplicados. Cada uno agrega sus propios problemas encontrados y cómo los resolvió.
 - **Créditos:** música de Kevin MacLeod (CC BY 4.0) e íconos de game-icons.net (CC BY 3.0). El pixel art es propio del equipo.
 
@@ -147,11 +165,12 @@ Hacer los sprites de los efectos en Piskel (pixel art, 16×16 o 32×32) y agrega
 
 ## Checklist final antes de exponer
 
+- [ ] Portada nueva en pixel art con título e integrantes (A)
 - [ ] Registro con DNI y voz que repite con voz de hombre o de mujer (A)
 - [ ] Historia real en la intro, con fuentes (A)
 - [ ] Multijugador en línea, o en la misma PC como respaldo (B)
 - [ ] 3 niveles en secuencia (B)
 - [ ] 5 efectos o más (B)
 - [ ] Link de GitHub Pages funcionando (B)
-- [ ] Video publicado y pantallazos (B)
+- [ ] Video publicado y pantallazos (los dos)
 - [ ] PPT y documento de calidad (los dos)
