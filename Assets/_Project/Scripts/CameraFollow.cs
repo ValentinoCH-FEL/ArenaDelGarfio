@@ -19,11 +19,25 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
+        // Vista 2D: cámara ortográfica mirando derecho hacia abajo
+        offset = new Vector3(0f, 30f, 0f);
+        angleX = 90f;
+        var cam = GetComponent<Camera>();
+        if (cam != null)
+        {
+            cam.orthographic = true;
+            cam.orthographicSize = GameSession.Mode == GameMode.Versus ? 15.5f : 9.5f;
+            cam.nearClipPlane = 0.3f;
+            cam.farClipPlane = 60f;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.11f, 0.09f, 0.07f);
+        }
+
         // Con 2 jugadores la cámara queda fija y muestra toda la arena
         if (GameSession.Mode == GameMode.Versus)
         {
             target = null;
-            transform.SetPositionAndRotation(new Vector3(0f, 28f, -16.5f), Quaternion.Euler(60f, 0f, 0f));
+            transform.SetPositionAndRotation(new Vector3(0f, 30f, 0f), Quaternion.Euler(90f, 0f, 0f));
             return;
         }
 

@@ -10,6 +10,7 @@ public class WorldHealthBar : MonoBehaviour
 
     Health health;
     Camera cam;
+    Transform owner;
 
     void Start()
     {
@@ -17,6 +18,7 @@ public class WorldHealthBar : MonoBehaviour
         cam = Camera.main;
 
         Unit unit = GetComponentInParent<Unit>();
+        if (unit != null) owner = unit.transform;
         Unit player = Unit.FindPlayer();
         if (fill != null && unit != null && player != null)
             fill.color = unit.IsEnemyOf(player) ? enemyColor : allyColor;
@@ -40,6 +42,11 @@ public class WorldHealthBar : MonoBehaviour
 
     void LateUpdate()
     {
-        if (cam != null) transform.rotation = cam.transform.rotation;
+        if (cam == null) return;
+        transform.rotation = cam.transform.rotation;
+
+        // En la vista 2D la barra va justo encima de la cabeza del sprite
+        if (cam.orthographic && owner != null)
+            transform.position = owner.position + new Vector3(0f, 1.5f, 2.15f);
     }
 }

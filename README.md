@@ -1,6 +1,10 @@
 # Arena del Garfio
 
-Videojuego 3D de habilidad, estrategia y **memoria** hecho en **Unity 6 (6000.5.4f1)**. Dos clanes separados por un río maldito: nadie puede cruzarlo, así que la única forma de atacar es lanzar el garfio, atrapar al enemigo y arrastrarlo a tu lado.
+Videojuego de habilidad, estrategia y **memoria** en **pixel art**, hecho en **Unity 6 (6000.5.4f1)** y basado en una historia real del Perú: la **guerra civil inca (1529-1532)** entre los ejércitos de **Huáscar (Cusco)** y **Atahualpa (Quito)**. Dos bandos separados por un río: la única forma de atacar es lanzar el garfio, atrapar al enemigo y arrastrarlo a tu orilla.
+
+> **Versión 3 en desarrollo (reforma).** Ya están hechos el pixel art, la vista 2D y la versión web. Las tareas pendientes del equipo están en **[TAREAS_EQUIPO.md](TAREAS_EQUIPO.md)**.
+
+![Nivel 1](Capturas/nivel1_pradera.jpg)
 
 ## Jugar en línea
 
@@ -11,6 +15,18 @@ Videojuego 3D de habilidad, estrategia y **memoria** hecho en **Unity 6 (6000.5.
 En **[Releases](../../releases/latest)** descarga **ArenaDelGarfio_Instalador_Mac_v3.0.dmg**, ábrelo y arrastra el juego a Aplicaciones.
 
 > La primera vez ábrelo con **clic derecho → Abrir** (la app no está firmada por Apple). Requisitos: macOS 12 o superior.
+
+## Pixel art
+
+Todos los personajes, escenarios y objetos están dibujados en pixel art por el equipo:
+
+- Archivos PNG originales y versiones ampliadas: carpeta [`PixelArt/`](PixelArt/).
+- Hoja con todos los dibujos: [`PixelArt/hoja_pixel_art.png`](PixelArt/hoja_pixel_art.png).
+- Pantallazos del juego en JPG y PNG: carpeta [`Capturas/`](Capturas/).
+
+Personajes: **guerrero**, **chasqui** y **orejón**, en el bando azul (Cusco) y el rojo (Quito). Escenarios: pradera andina, cañón del Apurímac y puna. Elementos andinos: muros de piedra inca, ichu, queñua, cantuta, cactus San Pedro y chakana.
+
+> El link de juego en línea y los instaladores publicados todavía son de la versión anterior (3D). Se actualizan al publicar la v3 en pixel art (tarea P1 de [TAREAS_EQUIPO.md](TAREAS_EQUIPO.md)).
 
 ## Descargar y jugar (Windows)
 

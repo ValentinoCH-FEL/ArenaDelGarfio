@@ -242,6 +242,14 @@ public class GameManager : MonoBehaviour
         var hook = player.GetComponent<HookAbility>();
         if (hook != null) { hook.damage = info.hookDamage; hook.cooldown = info.hookCooldown; }
 
+        // Personajes en pixel art: solo se cambia el dibujo
+        var sprite = player.GetComponent<SpriteCharacter>();
+        if (sprite != null)
+        {
+            sprite.SetKind(GameSession.Character);
+            return;
+        }
+
         GameObject prefab = string.IsNullOrEmpty(info.model) ? null : Resources.Load<GameObject>("Personajes/" + info.model);
         if (prefab == null) return;
 

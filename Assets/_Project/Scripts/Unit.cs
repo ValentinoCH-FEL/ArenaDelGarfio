@@ -39,6 +39,10 @@ public class Unit : MonoBehaviour
         // Todos los que tienen garfio también tienen escudo
         if (GetComponent<HookAbility>() != null && GetComponent<ShieldAbility>() == null)
             gameObject.AddComponent<ShieldAbility>();
+
+        // Todos los personajes se dibujan en pixel art
+        if (GetComponent<SpriteCharacter>() == null)
+            gameObject.AddComponent<SpriteCharacter>();
     }
 
     void OnDestroy() { All.Remove(this); }

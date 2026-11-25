@@ -67,27 +67,16 @@ public class ShieldAbility : MonoBehaviour
         if (visual.activeSelf != show) visual.SetActive(show);
         if (show)
         {
-            float s = 2.4f + Mathf.Sin(Time.time * 18f) * 0.25f;
-            visual.transform.localScale = new Vector3(s, 0.05f, s);
+            // Aro en pixel art que late alrededor del cuerpo del personaje
+            float s = 2.6f + Mathf.Sin(Time.time * 18f) * 0.2f;
+            visual.transform.SetPositionAndRotation(transform.position + new Vector3(0f, -0.8f, 0.75f), Quaternion.Euler(90f, 0f, 0f));
+            visual.transform.localScale = Vector3.one * (s / 2f);
         }
     }
 
     void CreateVisual()
     {
-        Transform ring = transform.Find("Anillo");
-        Renderer ringRenderer = ring != null ? ring.GetComponent<Renderer>() : null;
-        if (ringRenderer == null) return;
-
-        visual = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        visual.name = "EscudoVisual";
-        DestroyImmediate(visual.GetComponent<Collider>());
-        visual.transform.SetParent(transform, false);
-        visual.transform.localPosition = new Vector3(0f, -0.92f, 0f);
-
-        var mat = new Material(ringRenderer.sharedMaterial);
-        mat.SetColor("_BaseColor", new Color(0.3f, 0.95f, 1f));
-        var r = visual.GetComponent<Renderer>();
-        r.sharedMaterial = mat;
-        r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        var sr = PixelArt.CreateFlat(transform, "EscudoVisual", PixelArt.Single("Objetos/escudo"), 2700);
+        visual = sr.gameObject;
     }
 }

@@ -43,12 +43,19 @@ public class Rune : MonoBehaviour
     public void SetColor(Color color)
     {
         baseColor = color;
-        if (visual != null) visual.material.SetColor("_BaseColor", color);
+        ApplyColor(color);
     }
 
     public void SetHighlight(Color color, bool on)
     {
-        if (visual != null) visual.material.SetColor("_BaseColor", on ? color : baseColor);
+        ApplyColor(on ? color : baseColor);
+    }
+
+    // La runa en pixel art (chakana) es un sprite; si fuera un modelo se pinta su material
+    void ApplyColor(Color color)
+    {
+        if (visual is SpriteRenderer sprite) sprite.color = color;
+        else if (visual != null) visual.material.SetColor("_BaseColor", color);
     }
 
     void Update()
