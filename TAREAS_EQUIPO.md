@@ -36,7 +36,6 @@ La parte visual ya está hecha: personajes, escenarios, objetos, la vista 2D y l
 | Tarea difícil | **Reconocimiento de voz con género según DNI** (V1-V4) | **Multijugador en línea** (M1-M3) |
 | Tareas medianas | **Portada nueva** (C1) + **historia real** en la intro (H1) | **Niveles en secuencia** (N1) + **efectos** (E1) |
 | Tareas cortas | Textos del juego (H2) | Publicar en GitHub Pages (P1) |
-| Compartido | Mitad del PPT + video (P2) + documento de calidad | Mitad del PPT + video (P2) + documento de calidad |
 
 > Trabajen cada uno en **su propia rama** (Parte 1: `git checkout -b parte1`, Parte 2: `git checkout -b parte2`) y unan los cambios con un Pull Request en GitHub. No editen la misma escena a la vez: las escenas de Unity no se combinan bien. La Parte 1 trabaja en `MainMenu.unity` y la Parte 2 en las arenas (`Arena01`, `Arena02` y `Arena03`).
 
@@ -90,7 +89,7 @@ La portada actual es muy simple: fondo oscuro liso, el título en texto naranja 
 - **Qué:** cambiar los 6 textos de `Scripts/IntroCinematic.cs` (arreglo `Captions`) por la historia de la **guerra civil inca**: la muerte de Huayna Cápac, la división del imperio entre Huáscar (Cusco) y Atahualpa (Quito), las batallas, el río Apurímac y el final en Quipaipán (1532).
 - **Investigar y citar fuentes** (por ejemplo, el Ministerio de Cultura del Perú o libros de historia del Perú). Revisen fechas y nombres; no inventen datos.
 - **Imágenes de la intro** (`Resources/Intro/intro_1..6.jpg`, 1600×900): hoy son de la versión anterior. Háganlas de nuevo en pixel art: capturas del juego nuevo más los sprites de `PixelArt/`.
-- **Terminado cuando:** la intro cuenta la historia real con imágenes en pixel art y las fuentes están en el PPT.
+- **Terminado cuando:** la intro cuenta la historia real con imágenes en pixel art y las fuentes están anotadas en un archivo `FUENTES.md` del repositorio.
 
 ### H2. Textos del juego
 - Cambiar nombres en `MainMenu.cs`, `GameSession.cs`, `HUD.cs` y `GameOverUI.cs`:
@@ -102,7 +101,7 @@ La portada actual es muy simple: fondo oscuro liso, el título en texto naranja 
 
 ## PARTE 2 (Compañero B) – Multijugador, niveles, efectos y publicación
 
-La tarea del curso pide: **modo MULTIJUGADOR**, **efectos**, **hosting remoto** y **video**.
+La tarea del curso pide: **modo MULTIJUGADOR**, **efectos** y **hosting remoto**.
 
 ### M1. Instalar el multijugador en línea
 - Window → Package Manager → Unity Registry → instalar **Netcode for GameObjects** y **Multiplayer Services** (para Relay, que permite jugar sin abrir puertos).
@@ -147,22 +146,6 @@ Hacer los sprites de los efectos en Piskel (pixel art, 16×16 o 32×32) y agrega
 
 ---
 
-## Compartido: video, PPT y calidad total (Deming)
-
-### P2. Video y pantallazos (los dos)
-- Grabar con **OBS Studio** un video de 3 a 5 minutos: intro, registro DNI y voz, menú, los 3 niveles, efectos y multijugador.
-- Pantallazos JPG/PNG de cada pantalla en la carpeta `Capturas/`. Ya hay algunos.
-- Subir el video a YouTube o Drive con acceso público y poner el link en el README.
-- **Reparto del video:** la Parte 1 graba voz, portada e historia; la Parte 2 graba niveles, efectos y multijugador. Luego lo unen en un solo video.
-
-### PPT y calidad total
-
-- **PPT** con la estructura que pide el curso. Pueden partir de `Arena del Garfio - Presentacion Avance 2.pptx`. Cada uno hace las diapositivas de su parte.
-- **Calidad total – Deming:** documentar el ciclo **PDCA** de esta reforma (qué se planificó, qué se hizo, cómo se verificó y qué se corrigió) y los **14 puntos** aplicados. Cada uno agrega sus propios problemas encontrados y cómo los resolvió.
-- **Créditos:** música de Kevin MacLeod (CC BY 4.0) e íconos de game-icons.net (CC BY 3.0). El pixel art es propio del equipo.
-
----
-
 ## Checklist final antes de exponer
 
 - [ ] Portada nueva en pixel art con título e integrantes (A)
@@ -172,5 +155,3 @@ Hacer los sprites de los efectos en Piskel (pixel art, 16×16 o 32×32) y agrega
 - [ ] 3 niveles en secuencia (B)
 - [ ] 5 efectos o más (B)
 - [ ] Link de GitHub Pages funcionando (B)
-- [ ] Video publicado y pantallazos (los dos)
-- [ ] PPT y documento de calidad (los dos)
