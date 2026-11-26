@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Arena del Garfio · Modo Memoria</title>
+    <title>Arena del Garfio</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
@@ -52,16 +52,16 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Web.loader.js";
+      var loaderUrl = buildUrl + "/ArenaDelGarfio_Web.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/Web.data",
-        frameworkUrl: buildUrl + "/Web.framework.js",
-        codeUrl: buildUrl + "/Web.wasm",
+        dataUrl: buildUrl + "/ArenaDelGarfio_Web.data",
+        frameworkUrl: buildUrl + "/ArenaDelGarfio_Web.framework.js",
+        codeUrl: buildUrl + "/ArenaDelGarfio_Web.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Equipo Arena del Garfio",
         productName: "Arena del Garfio",
-        productVersion: "3.0",
+        productVersion: "3.1",
         showBanner: unityShowBanner,
         // errorHandler: function(err, url, line) {
         //    alert("error " + err + " occurred at line " + line);
@@ -104,8 +104,15 @@
 
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "1280px";
-        canvas.style.height = "720px";
+        // Ajusta el juego al tamaño de la ventana manteniendo la proporción 16:9
+        function fitCanvas() {
+          var w = Math.min(window.innerWidth - 20, (window.innerHeight - 80) * 16 / 9);
+          w = Math.max(320, Math.floor(w));
+          canvas.style.width = w + "px";
+          canvas.style.height = Math.floor(w * 9 / 16) + "px";
+        }
+        fitCanvas();
+        window.addEventListener("resize", fitCanvas);
       }
 
       document.querySelector("#unity-loading-bar").style.display = "block";
