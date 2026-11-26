@@ -1,0 +1,141 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+// Lo que el jugador elige en el menú (modo, personaje) y los controles de cada jugador.
+public enum GameMode { Clasico = 0, Supervivencia = 1, Versus = 2, Memoria = 3 }
+
+public class CharacterInfo
+{
+    public string name, description, model;
+    public float health, speed, hookDamage, hookCooldown;
+}
+
+public static class GameSession
+{
+    public const string ModeKey = "modo";
+    public const string CharacterKey = "personaje";
+
+    public static readonly string[] ModeNames = { "Clásico", "Supervivencia", "2 Jugadores", "Memoria" };
+    public static readonly string[] ModeDescriptions =
+    {
+        "Clásico: tú y un aliado contra 2 bots. 10 kills ganan la ronda, mejor de 3.",
+        "Supervivencia: oleadas cada vez más fuertes. Tienes 3 vidas. ¿Hasta qué oleada llegas?",
+        "2 Jugadores en la misma PC. J2: flechas, punto = garfio, coma = red, guion = fase, M = escudo (o un mando).",
+        "Memoria: las runas del río se encienden en un orden. Memorízalo y engánchalas con el garfio en el mismo orden.",
+    };
+
+    public static readonly CharacterInfo[] Characters =
+    {
+        new CharacterInfo { name = "Guerrero", model = null, health = 100, speed = 6f, hookDamage = 35, hookCooldown = 3f,
+            description = "Soldado del Cusco: 100 de vida, sin puntos débiles." },
+        new CharacterInfo { name = "Chasqui", model = "Modelo_Veloz", health = 75, speed = 7.5f, hookDamage = 30, hookCooldown = 2.4f,
+            description = "Mensajero del Inca: 75 de vida, muy rápido y con recarga corta." },
+        new CharacterInfo { name = "Orejón", model = "Modelo_Tanque", health = 150, speed = 5f, hookDamage = 45, hookCooldown = 3.4f,
+            description = "Noble guerrero: 150 de vida y garfio pesado, pero lento." },
+    };
+
+    public static GameMode Mode
+    {
+        // En línea se juega con las reglas de 2 Jugadores, sin cambiar el modo guardado
+        get => PartidaEnLinea.Activa ? GameMode.Versus : (GameMode)Mathf.Clamp(PlayerPrefs.GetInt(ModeKey, 0), 0, 3);
+        set { PlayerPrefs.SetInt(ModeKey, (int)value); PlayerPrefs.Save(); }
+    }
+
+    public static int Character
+    {
+        get => Mathf.Clamp(PlayerPrefs.GetInt(CharacterKey, 0), 0, Characters.Length - 1);
+        set { PlayerPrefs.SetInt(CharacterKey, value); PlayerPrefs.Save(); }
+    }
+
+    public static CharacterInfo CurrentCharacter => Characters[Character];
+}
+
+// Estadísticas del jugador 1 durante la partida (se muestran al final).
+public static class MatchStats
+{
+    public static int Kills, Deaths, HooksFired, HooksHit, Reflects, Runes;
+    public static int MemoryHits, MemoryErrors, MemorySpan; // Modo Memoria
+
+    public static int Accuracy => HooksFired == 0 ? 0 : Mathf.RoundToInt(100f * HooksHit / HooksFired);
+
+    public static int MemoryAccuracy => MemoryHits + MemoryErrors == 0 ? 0 : Mathf.RoundToInt(100f * MemoryHits / (MemoryHits + MemoryErrors));
+
+    public static void Reset() { Kills = Deaths = HooksFired = HooksHit = Reflects = Runes = MemoryHits = MemoryErrors = MemorySpan = 0; }
+}
+
+// Controles. Jugador 1: WASD + mouse. Jugador 2: flechas y las teclas punto, coma, guion y M, o un mando.
+public static class InputMap
+{
+    static Gamepad Pad(int player) => player == 1 ? Gamepad.current : null;
+
+    static bool IsRemote(int player) => player == 1 && PartidaEnLinea.EsAnfitrion;
+
+    public static Vector2 Move(int player)
+    {
+        if (IsRemote(player)) return Vector2.ClampMagnitude(PartidaEnLinea.Remoto.mover, 1f);
+        Vector2 v = Vector2.zero;
+        var kb = Keyboard.current;
+        if (kb != null)
+        {
+            if (player == 0)
+            {
+                if (kb.wKey.isPressed) v.y += 1;
+                if (kb.sKey.isPressed) v.y -= 1;
+                if (kb.dKey.isPressed) v.x += 1;
+                if (kb.aKey.isPressed) v.x -= 1;
+            }
+            else
+            {
+                if (kb.upArrowKey.isPressed) v.y += 1;
+                if (kb.downArrowKey.isPressed) v.y -= 1;
+                if (kb.rightArrowKey.isPressed) v.x += 1;
+                if (kb.leftArrowKey.isPressed) v.x -= 1;
+            }
+        }
+        var pad = Pad(player);
+        if (pad != null && pad.leftStick.ReadValue().magnitude > 0.25f) v = pad.leftStick.ReadValue();
+        if (player == 0 && v == Vector2.zero) v = VozControl.Direccion; // El teclado manda sobre la voz
+        return Vector2.ClampMagnitude(v, 1f);
+    }
+
+    // Solo el mando: palanca derecha para apuntar
+    public static Vector2 AimStick(int player)
+    {
+        var pad = Pad(player);
+        return pad != null ? pad.rightStick.ReadValue() : Vector2.zero;
+    }
+
+    public static bool Hook(int player)
+    {
+        if (IsRemote(player)) return PartidaEnLinea.Remoto.garfio;
+        var kb = Keyboard.current; var pad = Pad(player);
+        if (player == 0)
+            return VozControl.Pulsado(VozControl.Boton.Garfio) || (kb != null && kb.qKey.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame);
+        return (kb != null && kb.periodKey.wasPressedThisFrame) || (pad != null && pad.rightTrigger.wasPressedThisFrame);
+    }
+
+    public static bool Net(int player)
+    {
+        if (IsRemote(player)) return PartidaEnLinea.Remoto.red;
+        var kb = Keyboard.current; var pad = Pad(player);
+        if (player == 0)
+            return VozControl.Pulsado(VozControl.Boton.Red) || (kb != null && kb.eKey.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame);
+        return (kb != null && kb.commaKey.wasPressedThisFrame) || (pad != null && pad.leftTrigger.wasPressedThisFrame);
+    }
+
+    public static bool Phase(int player)
+    {
+        if (IsRemote(player)) return PartidaEnLinea.Remoto.fase;
+        var kb = Keyboard.current; var pad = Pad(player);
+        if (player == 0) return VozControl.Pulsado(VozControl.Boton.Fase) || (kb != null && kb.spaceKey.wasPressedThisFrame);
+        return (kb != null && kb.slashKey.wasPressedThisFrame) || (pad != null && pad.buttonSouth.wasPressedThisFrame);
+    }
+
+    public static bool Shield(int player)
+    {
+        if (IsRemote(player)) return PartidaEnLinea.Remoto.escudo;
+        var kb = Keyboard.current; var pad = Pad(player);
+        if (player == 0) return VozControl.Pulsado(VozControl.Boton.Escudo) || (kb != null && kb.fKey.wasPressedThisFrame);
+        return (kb != null && kb.mKey.wasPressedThisFrame) || (pad != null && pad.buttonEast.wasPressedThisFrame);
+    }
+}
