@@ -254,7 +254,7 @@ public static class PixelArtTool
         var done = new HashSet<GameObject>();
         int count = 0;
 
-        var renderers = Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var renderers = Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Exclude);
         foreach (var r in renderers)
         {
             if (!r.enabled) continue;

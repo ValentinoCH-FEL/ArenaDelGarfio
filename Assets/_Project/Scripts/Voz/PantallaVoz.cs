@@ -168,10 +168,23 @@ public class PantallaVoz : MonoBehaviour
     }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-    // El navegador no permite medir el micrófono desde Unity
-    void EncenderMedidor() { }
-    void ApagarMedidor() { }
-    void MostrarGenero() { if (genero != null) genero.text = "El detector de género por voz funciona en la versión de Windows"; }
+    // En el navegador el tono se mide en JavaScript (Plugins/WebGL/Voz.jslib), con el mismo algoritmo
+    [System.Runtime.InteropServices.DllImport("__Internal")] static extern void TonoIniciar();
+    [System.Runtime.InteropServices.DllImport("__Internal")] static extern void TonoParar();
+    [System.Runtime.InteropServices.DllImport("__Internal")] static extern void TonoPausar(int pausa);
+    [System.Runtime.InteropServices.DllImport("__Internal")] static extern int TonoMuestras();
+    [System.Runtime.InteropServices.DllImport("__Internal")] static extern float TonoMediana();
+    [System.Runtime.InteropServices.DllImport("__Internal")] static extern void TonoReiniciar();
+
+    void EncenderMedidor() { TonoIniciar(); }
+    void ApagarMedidor() { TonoParar(); }
+    void Update() { TonoPausar(Time.unscaledTime < echoUntil ? 1 : 0); }
+
+    void MostrarGenero()
+    {
+        EscribirGenero(TonoMuestras(), TonoMediana());
+        TonoReiniciar();
+    }
 #else
     AudioClip muestra;
     readonly float[] datos = new float[512];
@@ -184,19 +197,7 @@ public class PantallaVoz : MonoBehaviour
     // Al terminar cada frase: qué sexo parece por la voz y si coincide con el DNI
     void MostrarGenero()
     {
-        if (genero == null) return;
-        Sexo? estimado = detector.Estimar();
-        if (!detector.HayVozSuficiente())
-            genero.text = "Detector de voz: no alcancé a medir tu tono (habla un poco más fuerte o más largo)";
-        else if (estimado == null)
-            genero.text = $"Detector de voz: tu tono (≈ {detector.TonoMedio():0} Hz) está en la zona intermedia, no puedo asegurar  ·  se usa el DNI: {PerfilJugador.SexoComoLetra}";
-        else
-        {
-            bool coincide = estimado == PerfilJugador.Sexo;
-            string sexo = estimado == Sexo.Hombre ? "hombre" : "mujer";
-            genero.text = $"Por tu voz pareces {sexo} (tono ≈ {detector.TonoMedio():0} Hz)  ·  DNI: {PerfilJugador.SexoComoLetra}  ·  " +
-                          (coincide ? "<color=#7CFF8A>coincide</color>" : "<color=#FF8A8A>no coincide, se usa el DNI</color>");
-        }
+        EscribirGenero(detector.Muestras, detector.TonoMedio());
         detector.Reiniciar();
     }
 
@@ -241,6 +242,27 @@ public class PantallaVoz : MonoBehaviour
         }
     }
 #endif
+
+    // Resultado del detector (igual en Windows y en la web)
+    void EscribirGenero(int muestras, float tono)
+    {
+        if (genero == null) return;
+        if (muestras < 6)
+        {
+            genero.text = "Detector de voz: no alcancé a medir tu tono (habla un poco más fuerte o más largo)";
+            return;
+        }
+        Sexo? estimado = DetectorGenero.Clasificar(tono);
+        if (estimado == null)
+            genero.text = $"Detector de voz: tu tono (≈ {tono:0} Hz) está en la zona intermedia, no puedo asegurar  ·  se usa el DNI: {PerfilJugador.SexoComoLetra}";
+        else
+        {
+            bool coincide = estimado == PerfilJugador.Sexo;
+            string sexo = estimado == Sexo.Hombre ? "hombre" : "mujer";
+            genero.text = $"Por tu voz pareces {sexo} (tono ≈ {tono:0} Hz)  ·  DNI: {PerfilJugador.SexoComoLetra}  ·  " +
+                          (coincide ? "<color=#7CFF8A>coincide</color>" : "<color=#FF8A8A>no coincide, se usa el DNI</color>");
+        }
+    }
 
     void OnDestroy()
     {

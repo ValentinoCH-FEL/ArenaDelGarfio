@@ -31,7 +31,7 @@ public class ServicioVozSimulado : IServicioVoz
 {
     public bool Disponible => true;
     public event Action<string> AlReconocer;
-    public event Action<string> AlOir;
+    public event Action<string> AlOir { add { } remove { } }   // La versión simulada no da textos parciales
     public event Action<string> AlFallar;
 
     bool escuchando;

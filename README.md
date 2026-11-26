@@ -2,19 +2,15 @@
 
 Videojuego de habilidad, estrategia y **memoria** en **pixel art**, hecho en **Unity 6 (6000.5.4f1)** y basado en una historia real del Perú: la **guerra civil inca (1529-1532)** entre los ejércitos de **Huáscar (Cusco)** y **Atahualpa (Quito)**. Dos bandos separados por un río: la única forma de atacar es lanzar el garfio, atrapar al enemigo y arrastrarlo a tu orilla.
 
-> **Versión 3 en desarrollo (reforma).** Ya están hechos el pixel art, la vista 2D y la versión web. Las tareas pendientes del equipo están en **[TAREAS_EQUIPO.md](TAREAS_EQUIPO.md)**.
+> **Versión 3.1 (final):** pixel art, historia real, voz con género según DNI y detector de género por el tono, multijugador en línea entre Mac y Windows, niveles y efectos.
 
 ![Nivel 1](Capturas/nivel1_pradera.jpg)
 
-## Jugar en línea
+## Jugar desde Mac o Windows (navegador)
 
-**https://valentinoch-fel.github.io/ArenaDelGarfio/**: se juega en el navegador, sin descargar nada (computadora con teclado y mouse).
+**https://valentinoch-fel.github.io/ArenaDelGarfio/**: se juega en el navegador, sin instalar nada. Recomendado: **Chrome o Edge** (la voz usa la Web Speech API del navegador). Computadora con teclado y mouse.
 
-## Descargar y jugar (Mac)
-
-En **[Releases](../../releases/latest)** descarga **ArenaDelGarfio_Instalador_Mac_v3.0.dmg**, ábrelo y arrastra el juego a Aplicaciones.
-
-> La primera vez ábrelo con **clic derecho → Abrir** (la app no está firmada por Apple). Requisitos: macOS 12 o superior.
+Desde el navegador también se puede jugar **en línea** contra alguien con Windows o con otro navegador.
 
 ## Pixel art
 
@@ -26,14 +22,12 @@ Todos los personajes, escenarios y objetos están dibujados en pixel art por el 
 
 Personajes: **guerrero**, **chasqui** y **orejón**, en el bando azul (Cusco) y el rojo (Quito). Escenarios: pradera andina, cañón del Apurímac y puna. Elementos andinos: muros de piedra inca, ichu, queñua, cantuta, cactus San Pedro y chakana.
 
-> El link de juego en línea y los instaladores publicados todavía son de la versión anterior (3D). Se actualizan al publicar la v3 en pixel art (tarea P1 de [TAREAS_EQUIPO.md](TAREAS_EQUIPO.md)).
-
 ## Descargar y jugar (Windows)
 
 Ve a **[Releases](../../releases/latest)** y descarga:
 
-- **ArenaDelGarfio_Instalador_v2.1.exe**: instalador (crea accesos directos y desinstalador).
-- **ArenaDelGarfio_Portable_v2.1.zip**: sin instalar; descomprime y abre `ArenaDelGarfio.exe`.
+- **ArenaDelGarfio_Instalador_v3.1.exe**: instalador (crea accesos directos y desinstalador).
+- **ArenaDelGarfio_Portable_v3.1.zip**: sin instalar; descomprime y abre `ArenaDelGarfio.exe`.
 
 > Windows puede mostrar "Windows protegió su PC" porque el instalador no está firmado. Haz clic en **Más información → Ejecutar de todas formas**.
 
@@ -47,7 +41,11 @@ La historia se cuenta en una intro animada al abrir el juego (se salta con un cl
 
 ## Voz y DNI
 
-Al abrir el juego se piden nombre, DNI (8 dígitos) y sexo H/M. En el botón **Voz**, el juego escucha una frase y la repite con voz de hombre o de mujer según el DNI. En la partida, la tecla **V** activa el control por voz:
+Al abrir el juego se piden nombre, DNI (8 dígitos) y sexo H/M. En el botón **Voz**, el juego escucha una frase y la repite con voz de hombre o de mujer según el DNI.
+
+**Detector de género por la voz:** mientras hablas, el juego mide el tono de tu voz (frecuencia fundamental, por autocorrelación). Por debajo de 145 Hz estima "hombre", por encima de 180 Hz "mujer" y en medio dice que no puede asegurarlo; luego lo compara con el DNI. Código en `Scripts/Voz/DetectorGenero.cs` (Windows) y `Plugins/WebGL/Voz.jslib` (navegador).
+
+En la partida, la tecla **V** activa el control por voz:
 
 | Para | Di |
 |---|---|
@@ -63,7 +61,7 @@ Al abrir el juego se piden nombre, DNI (8 dígitos) y sexo H/M. En el botón **V
 
 ## Jugar en línea con otra PC
 
-Botón **En línea**: uno pulsa **Crear sala** y comparte el código; el otro lo escribe y pulsa **Unirse**. El anfitrión elige el nivel. Usa Netcode for GameObjects y Unity Relay (el proyecto debe estar vinculado a Unity Cloud con Relay activado). En línea no hay tienda, runas ni pausa.
+Botón **En línea**: uno pulsa **Crear sala** y comparte el código; el otro lo escribe y pulsa **Unirse**. El anfitrión elige el nivel. Funciona entre Windows y navegador (Mac o Windows). Usa Netcode for GameObjects y Unity Relay: el anfitrión simula la partida y el invitado envía sus controles. En línea no hay tienda, runas ni pausa.
 
 ## Controles
 
@@ -82,7 +80,7 @@ El jugador 2 también puede usar un mando.
 
 ## Características
 
-- **4 modos:** Clásico (tú y un aliado contra 2 bots, mejor de 3 rondas), Supervivencia (oleadas y récord), 2 Jugadores en la misma PC y **Memoria**.
+- **5 modos:** En línea, Clásico (tú y un aliado contra 2 bots, mejor de 3 rondas), Supervivencia (oleadas y récord), 2 Jugadores en la misma PC y **Memoria**.
 - **Modo Memoria · Runas de la Chakana (v3.0):** 6 runas del río se encienden en un orden; memorízalo y engánchalas con el garfio en el mismo orden. Cada nivel suma una runa (como la prueba de bloques de Corsi). 3 vidas, récord y estadísticas de aciertos y precisión. Código en `Assets/_Project/Scripts/MemoryMode.cs`.
 - **3 personajes:** Guerrero, Chasqui y Orejón, con distinta vida, velocidad y garfio.
 - **3 niveles en secuencia:** Chimborazo, Apurímac y Quipaipán. En el modo Clásico, ganar uno abre el siguiente.
@@ -93,7 +91,8 @@ El jugador 2 también puede usar un mando.
 
 ## Presentación y capturas
 
-La presentación del modo Memoria (PPTX y PDF) y las capturas del juego están en [`Entrega/Memoria`](Entrega/Memoria).
+- Presentación final (PPTX y PDF): [`Entrega/Final`](Entrega/Final).
+- Presentación del modo Memoria y sus capturas: [`Entrega/Memoria`](Entrega/Memoria).
 
 ## Abrir el proyecto
 

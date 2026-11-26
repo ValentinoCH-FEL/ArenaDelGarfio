@@ -81,7 +81,12 @@ public class DetectorGenero
     public Sexo? Estimar(int minimoMuestras = 6)
     {
         if (tonos.Count < minimoMuestras) return null;
-        float tono = TonoMedio();
+        return Clasificar(TonoMedio());
+    }
+
+    // Hombre, mujer o null (zona intermedia) según el tono en Hz. También lo usa la versión web.
+    public static Sexo? Clasificar(float tono)
+    {
         if (tono < LimiteHombre) return Sexo.Hombre;
         if (tono > LimiteMujer) return Sexo.Mujer;
         return null;
