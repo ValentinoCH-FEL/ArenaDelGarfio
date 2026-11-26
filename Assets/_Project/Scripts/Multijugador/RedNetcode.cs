@@ -97,7 +97,14 @@ public class RedNetcode : IServicioRed
 
     static async Task IniciarServicios()
     {
-        if (UnityServices.State != ServicesInitializationState.Initialized) await UnityServices.InitializeAsync();
+        if (UnityServices.State != ServicesInitializationState.Initialized)
+        {
+            // Cada copia abierta del juego usa su propio perfil anónimo: así dos ventanas en la misma PC
+            // cuentan como jugadores distintos (si no, Unity responde "player is already a member of the lobby").
+            var opciones = new InitializationOptions();
+            opciones.SetProfile("p" + UnityEngine.Random.Range(0, 999999999)); // Al azar: también funciona en la versión web
+            await UnityServices.InitializeAsync(opciones);
+        }
         if (!AuthenticationService.Instance.IsSignedIn) await AuthenticationService.Instance.SignInAnonymouslyAsync();
     }
 

@@ -17,6 +17,7 @@ public static class SceneLoader
 
     public static void Quit()
     {
+        Debug.Log("[SALIDA] El juego se cierra desde un botón (Salir)");
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

@@ -109,6 +109,7 @@ public class PantallaVoz : MonoBehaviour
         ajustes.SetActive(false);
         voz.EmpezarAEscuchar();
         EncenderMedidor();
+        if (genero != null) genero.text = "";
 
         // Sin micrófono real (versión de prueba) se simula una frase para ver el flujo
         if (voz is ServicioVozSimulado fake) fake.Simular("hola, soy un garfiero");
@@ -130,6 +131,7 @@ public class PantallaVoz : MonoBehaviour
 
         estado.text = "Dijiste (sigue hablando o pulsa Detener):";
         reconocido.text = $"\"{text}\"";
+        MostrarGenero();
         voz.Hablar(text, PerfilJugador.Sexo);
     }
 
@@ -146,6 +148,7 @@ public class PantallaVoz : MonoBehaviour
     // ---- Medidor del micrófono: muestra si de verdad está llegando sonido ----
     RectTransform barra;
     TMP_Text microfono;
+    TMP_Text genero;   // Resultado del detector de género por voz
 
     void CrearMedidor(RectTransform box)
     {
@@ -160,6 +163,7 @@ public class PantallaVoz : MonoBehaviour
         barra.gameObject.AddComponent<Image>().color = new Color(0.45f, 0.9f, 0.5f);
 
         microfono = UIPixel.Texto(box, "Microfono", "", 20f, new Vector2(0f, -485f), new Vector2(1000f, 28f), font, new Color(0.65f, 0.7f, 0.8f));
+        genero = UIPixel.Texto(box, "Genero", "", 24f, new Vector2(0f, -445f), new Vector2(1060f, 36f), font, new Color(1f, 0.86f, 0.35f));
         fondo.gameObject.SetActive(false);
     }
 
@@ -167,9 +171,34 @@ public class PantallaVoz : MonoBehaviour
     // El navegador no permite medir el micrófono desde Unity
     void EncenderMedidor() { }
     void ApagarMedidor() { }
+    void MostrarGenero() { if (genero != null) genero.text = "El detector de género por voz funciona en la versión de Windows"; }
 #else
     AudioClip muestra;
     readonly float[] datos = new float[512];
+
+    // ---- Detector de género por voz (ver DetectorGenero.cs) ----
+    readonly DetectorGenero detector = new DetectorGenero(16000);
+    readonly float[] ventana = new float[1024];   // 64 ms de audio
+    float proximoAnalisis;
+
+    // Al terminar cada frase: qué sexo parece por la voz y si coincide con el DNI
+    void MostrarGenero()
+    {
+        if (genero == null) return;
+        Sexo? estimado = detector.Estimar();
+        if (!detector.HayVozSuficiente())
+            genero.text = "Detector de voz: no alcancé a medir tu tono (habla un poco más fuerte o más largo)";
+        else if (estimado == null)
+            genero.text = $"Detector de voz: tu tono (≈ {detector.TonoMedio():0} Hz) está en la zona intermedia, no puedo asegurar  ·  se usa el DNI: {PerfilJugador.SexoComoLetra}";
+        else
+        {
+            bool coincide = estimado == PerfilJugador.Sexo;
+            string sexo = estimado == Sexo.Hombre ? "hombre" : "mujer";
+            genero.text = $"Por tu voz pareces {sexo} (tono ≈ {detector.TonoMedio():0} Hz)  ·  DNI: {PerfilJugador.SexoComoLetra}  ·  " +
+                          (coincide ? "<color=#7CFF8A>coincide</color>" : "<color=#FF8A8A>no coincide, se usa el DNI</color>");
+        }
+        detector.Reiniciar();
+    }
 
     void EncenderMedidor()
     {
@@ -201,6 +230,15 @@ public class PantallaVoz : MonoBehaviour
         float peak = 0f;
         foreach (float d in datos) peak = Mathf.Max(peak, Mathf.Abs(d));
         barra.anchorMax = new Vector2(Mathf.Clamp01(peak * 4f), 1f);
+
+        // Mide el tono cada 50 ms, pero no mientras el juego está hablando (no se mide su propia voz)
+        int inicio = Microphone.GetPosition(null) - ventana.Length;
+        if (inicio >= 0 && Time.unscaledTime >= proximoAnalisis && Time.unscaledTime > echoUntil)
+        {
+            muestra.GetData(ventana, inicio);
+            detector.Analizar(ventana);
+            proximoAnalisis = Time.unscaledTime + 0.05f;
+        }
     }
 #endif
 
