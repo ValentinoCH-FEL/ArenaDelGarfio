@@ -20,10 +20,13 @@ public class MainMenu : MonoBehaviour
         "<b>Q / Clic izquierdo</b>  Garfio      <b>E / Clic derecho</b>  Red\n" +
         "<b>Espacio</b>  Fase (desapareces 1.5 s)      <b>F</b>  Escudo (refleja el garfio)\n" +
         "<b>B</b>  Tienda      <b>Esc</b>  Pausa\n\n" +
-        "<color=#FF8A8A><b>Jugador 2</b> (modo 2 Jugadores)</color>\n" +
+        "<color=#FF8A8A><b>Jugador 2</b> (modo 2 Jugadores, Quito)</color>\n" +
         "<b>Flechas</b>  Moverse y apuntar      <b>.</b>  Garfio      <b>,</b>  Red\n" +
         "<b>-</b>  Fase      <b>M</b>  Escudo      (también funciona un mando)\n\n" +
-        "Jala a un enemigo hasta tu lado del río para eliminarlo.\n" +
+        "Jala a un enemigo hasta tu lado del río para eliminarlo.\n\n" +
+        "<color=#F2BE3C><b>Voz</b></color>  En el menú: <b>Voz > Hablar</b> y el juego repite tu frase. En la partida pulsa <b>V</b>\n" +
+        "y di: arriba, abajo, izquierda, derecha, alto, garfio, red, escudo, fase, tienda, pausa...\n" +
+        "<color=#F2BE3C><b>En línea</b></color>  Uno crea la sala y comparte el código; el otro lo escribe y pulsa Unirse.\n" +
         "<size=75%><color=#9AA6BD>Música: \"Thatched Villagers\" y \"Five Armies\" de Kevin MacLeod (incompetech.com), licencia CC BY 4.0</color></size>";
 
     static readonly string[] StepTitles = { "MODO DE JUEGO", "PERSONAJE", "DIFICULTAD", "MAPA" };
@@ -40,18 +43,17 @@ public class MainMenu : MonoBehaviour
         "Un reto equilibrado.",
         "IA rápida y precisa, que esquiva y usa el escudo.",
     };
-    static readonly string[] ArenaNames = { "Pradera", "Desierto", "Nieve" };
-    static readonly string[] ArenaShort =
-    {
-        "Donde empezó la guerra. Rocas y arbustos.",
-        "Donde el río se vuelve oasis. Más rocas para cubrirse.",
-        "Donde nace el río. Bloques de hielo que se mueven.",
-    };
-
     static readonly Color Normal = new Color(0.16f, 0.32f, 0.58f);
     static readonly Color Selected = new Color(0.95f, 0.55f, 0.15f);
 
+    static readonly Color Locked = new Color(0.25f, 0.25f, 0.28f);
+    static readonly Color[] LevelColors =
+    {
+        new Color(0.24f, 0.5f, 0.28f), new Color(0.72f, 0.45f, 0.2f), new Color(0.35f, 0.62f, 0.8f),
+    };
+
     TMP_Text hintText;
+    TMP_Text welcomeText;
     TMP_Text titleText;
     int step;
     readonly List<Button>[] stepButtons = { new List<Button>(), new List<Button>(), new List<Button>(), new List<Button>() };
@@ -59,6 +61,7 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1f;
+        if (PartidaEnLinea.Activa) PartidaEnLinea.Terminar(); // Volver al menú cierra la sala
         BuildExtraUI();
         SetPanels(true, false, false, false);
         Refresh();
@@ -69,8 +72,83 @@ public class MainMenu : MonoBehaviour
             volumeSlider.onValueChanged.AddListener(AudioManager.SetVolume);
         }
 
-        // La historia se cuenta con una intro animada al abrir el juego
-        IntroCinematic.PlayOnce(GetComponentInParent<Canvas>(), difficultyText);
+        // Antes del menú se piden los datos del DNI (solo si todavía no están guardados)
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas != null && !PerfilJugador.EstaRegistrado)
+            PantallaRegistro.Mostrar(canvas.transform, Font, ShowWelcome);
+
+        // La historia se cuenta con una intro animada al abrir el juego (queda encima del registro)
+        IntroCinematic.PlayOnce(canvas, difficultyText);
+    }
+
+    TMP_FontAsset Font => difficultyText != null ? difficultyText.font : null;
+
+    void ShowWelcome()
+    {
+        if (welcomeText != null)
+            welcomeText.text = PerfilJugador.EstaRegistrado ? $"Bienvenido, <noparse>{PerfilJugador.Nombre}</noparse>" : "";
+    }
+
+    void ShowVoice()
+    {
+        AudioManager.Play(Sfx.Click);
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas != null) PantallaVoz.Mostrar(canvas.transform, Font);
+    }
+
+    void ShowOnline()
+    {
+        AudioManager.Play(Sfx.Click);
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas != null) PantallaEnLinea.Mostrar(canvas.transform, Font);
+    }
+
+    // Botones "En línea" y "Voz", saludo y portada en pixel art
+    void BuildMainScreen()
+    {
+        if (mainPanel != null)
+        {
+            Button play = FindButton(mainPanel.transform, "Jugar");
+            if (play != null)
+            {
+                AddMainButton(play, "EnLinea", "En línea", ShowOnline);
+                AddMainButton(play, "Voz", "Voz", ShowVoice);
+            }
+
+            string[] order = { "Jugar", "EnLinea", "Voz", "Controles", "Salir" };
+            for (int i = 0; i < order.Length; i++)
+            {
+                Button b = FindButton(mainPanel.transform, order[i]);
+                if (b != null) Place(b, new Vector2(0f, -78f * i), new Vector2(460f, 66f));
+            }
+            Move("TextoVolumen", -394f);
+            Move("SliderVolumen", -436f);
+
+            Image box = mainPanel.GetComponent<Image>();
+            if (box != null) box.enabled = false;
+        }
+
+        Portada.Construir(transform, Font);
+
+        welcomeText = UIPixel.Texto(transform, "Bienvenida", "", 34f, new Vector2(0f, -285f), new Vector2(1400f, 50f), Font,
+                                    new Color(1f, 0.86f, 0.35f));
+        welcomeText.outlineWidth = 0.25f;
+        welcomeText.outlineColor = Color.black;
+        if (mainPanel != null) welcomeText.transform.SetSiblingIndex(mainPanel.transform.GetSiblingIndex());
+        ShowWelcome();
+    }
+
+    static void AddMainButton(Button template, string name, string text, UnityAction onClick)
+    {
+        Button b = Clone(template, name, Vector2.zero, Vector2.zero, onClick);
+        TMP_Text label = b.GetComponentInChildren<TMP_Text>(true);
+        if (label != null) label.text = text;
+    }
+
+    void Move(string child, float y)
+    {
+        var rt = mainPanel.transform.Find(child) as RectTransform;
+        if (rt != null) rt.anchoredPosition = new Vector2(0f, y);
     }
 
     public void ShowMain() { SetPanels(true, false, false, true); }
@@ -146,7 +224,9 @@ public class MainMenu : MonoBehaviour
         }
 
         if (hintText != null)
-            hintText.text = step == 3 ? "Elige un mapa para empezar la batalla" : "Elige una opción para continuar";
+            hintText.text = step != 3 ? "Elige una opción para continuar"
+                : GameSession.Mode == GameMode.Clasico ? "Gana cada batalla para abrir la siguiente"
+                : "Elige un mapa para empezar la batalla";
 
         int[] selected = { (int)GameSession.Mode, GameSession.Character, GameManager.MenuDifficulty, -1 };
         for (int s = 0; s < stepButtons.Length; s++)
@@ -160,6 +240,8 @@ public class MainMenu : MonoBehaviour
             }
         }
 
+        RefreshLevels();
+
         // El récord de supervivencia se muestra en su tarjeta
         if (stepButtons[0].Count > 1)
         {
@@ -170,6 +252,35 @@ public class MainMenu : MonoBehaviour
             SetCard(stepButtons[0][3], GameSession.ModeNames[3], ModeShort[3] + $" Tu récord: {MemoryMode.Record} runas.", 32f);
     }
 
+    // Paso 4: tarjetas de los niveles. En Clásico los que faltan abrir salen con candado
+    void RefreshLevels()
+    {
+        for (int i = 0; i < stepButtons[3].Count; i++)
+        {
+            Button b = stepButtons[3][i];
+            bool open = Niveles.EstaAbierto(i);
+            b.interactable = open;
+            b.GetComponent<Image>().color = open ? LevelColors[i] : Locked;
+            SetCard(b, $"Nivel {i + 1}\n<size=75%>{Niveles.Nombres[i]}</size>",
+                open ? $"{Niveles.Descripciones[i]}\nIA base: nivel {i + 3}" : $"BLOQUEADO\nGana el nivel {i} para abrirlo.", 40f);
+
+            Transform candado = b.transform.Find("Candado");
+            if (candado == null && !open)
+            {
+                var img = new GameObject("Candado", typeof(RectTransform)).AddComponent<Image>();
+                img.transform.SetParent(b.transform, false);
+                img.sprite = PixelSprites.Candado;
+                img.raycastTarget = false;
+                RectTransform rt = img.rectTransform;
+                rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0f);
+                rt.anchoredPosition = new Vector2(0f, 14f);
+                rt.sizeDelta = new Vector2(56f, 64f);
+                candado = img.transform;
+            }
+            if (candado != null) candado.gameObject.SetActive(!open);
+        }
+    }
+
     void SetPanels(bool main, bool levels, bool controls, bool click)
     {
         if (click) AudioManager.Play(Sfx.Click);
@@ -178,8 +289,11 @@ public class MainMenu : MonoBehaviour
         if (controlsPanel != null) controlsPanel.SetActive(controls);
 
         // Los integrantes solo se muestran en la pantalla principal (para que no se asomen detrás de los paneles)
-        Transform credits = transform.Find("Integrantes");
-        if (credits != null) credits.gameObject.SetActive(main);
+        foreach (string name in new[] { "Integrantes", "Bienvenida", "GuerreroCusco", "GuerreroQuito" })
+        {
+            Transform t = transform.Find(name);
+            if (t != null) t.gameObject.SetActive(main);
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -188,8 +302,9 @@ public class MainMenu : MonoBehaviour
 
     void BuildExtraUI()
     {
-        if (controlsPanel != null) SetPanelText(controlsPanel, ControlsText, 27f);
+        if (controlsPanel != null) SetPanelText(controlsPanel, ControlsText, 24f);
         BuildWizard();
+        BuildMainScreen();
     }
 
     static void SetPanelText(GameObject panel, string text, float size)
@@ -284,12 +399,10 @@ public class MainMenu : MonoBehaviour
         if (a1 != null && a2 != null)
         {
             Button a3 = Clone(a2, "Arena3", Vector2.zero, size, () => PlayLevel("Arena03"));
-            a3.GetComponent<Image>().color = new Color(0.35f, 0.62f, 0.8f);
             Button[] arenas = { a1, a2, a3 };
             for (int i = 0; i < 3; i++)
             {
                 Place(arenas[i], new Vector2(xs[i], y), size);
-                SetCard(arenas[i], ArenaNames[i], $"{ArenaShort[i]}\nIA base: nivel {i + 3}");
                 stepButtons[3].Add(arenas[i]);
             }
         }

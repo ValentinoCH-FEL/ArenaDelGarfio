@@ -25,6 +25,9 @@ public class NetAbility : MonoBehaviour
     public bool IsReady => Time.time >= nextReadyTime;
     public float CooldownPercent => cooldown <= 0f ? 0f : Mathf.Clamp01((nextReadyTime - Time.time) / cooldown);
 
+    public NetProjectile Prefab => netPrefab;
+    public void SetRemoteCooldown(float percent) => nextReadyTime = Time.time + percent * cooldown;
+
     float nextReadyTime;
     PlayerController player;
 

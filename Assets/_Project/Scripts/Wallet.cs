@@ -15,6 +15,14 @@ public class Wallet : MonoBehaviour
         Gold = startingGold;
     }
 
+    // En línea, el invitado copia el oro del anfitrión
+    public void SetRemote(int gold)
+    {
+        if (gold == Gold) return;
+        Gold = gold;
+        OnGoldChanged?.Invoke(Gold);
+    }
+
     public void Add(int amount)
     {
         Gold += amount;

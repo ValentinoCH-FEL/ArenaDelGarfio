@@ -36,6 +36,8 @@ public class AutoTest : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         GameObject intro = GameObject.Find("Intro");
         if (intro != null) Destroy(intro);
+        GameObject registro = GameObject.Find("Registro");
+        if (registro != null) Destroy(registro);
         MainMenu menu = FindAnyObjectByType<MainMenu>();
         if (menu != null) menu.ShowLevels();
         yield return new WaitForSeconds(0.8f);

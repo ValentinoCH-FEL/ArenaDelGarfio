@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Modo Memoria · Runas del Ancla.
+// Modo Memoria · Runas de la Chakana.
 // 6 runas flotan en el río. Se encienden en un orden (fase MEMORIZA) y, tras una pausa de retención,
 // el jugador debe engancharlas con el garfio en el mismo orden (fase REPITE).
 // Si acierta toda la secuencia, la siguiente tiene una runa más (como el test de bloques de Corsi o Simon).
@@ -87,6 +87,9 @@ public class MemoryMode : MonoBehaviour
             runes.Add(r);
         }
     }
+
+    // Control por voz: la runa de un color
+    public Rune RunaDeColor(int index) => index >= 0 && index < runes.Count ? runes[index] : null;
 
     // Nunca la misma runa dos veces seguidas, para que cada paso se distinga
     void AddStep()

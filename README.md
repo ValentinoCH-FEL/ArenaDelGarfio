@@ -41,9 +41,29 @@ Requisitos: Windows 10/11 de 64 bits.
 
 ## La historia
 
-El río Ankari parte en dos el valle de Garfia. En su fondo duerme el **Ancla del Titán**, que da fuerza a quien domine sus aguas. Los clanes **Marea** y **Brasa** pelearon por ella hasta que el río quedó maldito: quien lo cruza a pie no vuelve. Juraron no pisar el agua jamás… pero el pacto no dice nada de *traer* al enemigo. Así nació el garfio. En cada equinoccio, los mejores garfieros luchan de orilla a orilla.
+Hacia 1527 muere el Inca Huayna Cápac y el Tahuantinsuyo queda disputado entre dos de sus hijos: **Huáscar**, proclamado en el Cusco, y **Atahualpa**, en Quito. La guerra civil (1529-1532) termina con la derrota y captura de Huáscar en **Quipaipán**, poco antes de que Pizarro apresara a Atahualpa en Cajamarca. En el juego peleas por el Cusco y puedes cambiar el resultado.
 
-La historia se cuenta en una intro animada al abrir el juego (se salta con un clic).
+La historia se cuenta en una intro animada al abrir el juego (se salta con un clic). Las fuentes están en [FUENTES.md](FUENTES.md).
+
+## Voz y DNI
+
+Al abrir el juego se piden nombre, DNI (8 dígitos) y sexo H/M. En el botón **Voz**, el juego escucha una frase y la repite con voz de hombre o de mujer según el DNI. En la partida, la tecla **V** activa el control por voz:
+
+| Para | Di |
+|---|---|
+| Moverte | arriba, abajo, izquierda, derecha, arriba izquierda (y las demás diagonales), alto |
+| Atacar y defender | garfio, red (apuntan solos al enemigo más cercano), runa, escudo, fase |
+| Atacar hacia un lado | garfio arriba, garfio abajo izquierda, red derecha, red arriba derecha... |
+| Tienda | tienda, comprar uno ... comprar ocho, cerrar |
+| Juego | pausa, continuar, reintentar, siguiente, menú |
+| Modo Memoria | celeste, rosa, amarilla, café, morada, naranja |
+
+- **Windows:** activa Configuración → Privacidad → Voz y ten instalado el paquete de voz en español.
+- **Web:** usa Chrome o Edge y permite el micrófono.
+
+## Jugar en línea con otra PC
+
+Botón **En línea**: uno pulsa **Crear sala** y comparte el código; el otro lo escribe y pulsa **Unirse**. El anfitrión elige el nivel. Usa Netcode for GameObjects y Unity Relay (el proyecto debe estar vinculado a Unity Cloud con Relay activado). En línea no hay tienda, runas ni pausa.
 
 ## Controles
 
@@ -63,9 +83,10 @@ El jugador 2 también puede usar un mando.
 ## Características
 
 - **4 modos:** Clásico (tú y un aliado contra 2 bots, mejor de 3 rondas), Supervivencia (oleadas y récord), 2 Jugadores en la misma PC y **Memoria**.
-- **Modo Memoria · Runas del Ancla (v3.0):** 6 runas del río se encienden en un orden; memorízalo y engánchalas con el garfio en el mismo orden. Cada nivel suma una runa (como la prueba de bloques de Corsi). 3 vidas, récord y estadísticas de aciertos y precisión. Código en `Assets/_Project/Scripts/MemoryMode.cs`.
-- **3 personajes:** Equilibrado, Veloz y Tanque, con distinta vida, velocidad y garfio.
-- **3 arenas:** Pradera, Desierto y Nieve (con bloques de hielo que se mueven).
+- **Modo Memoria · Runas de la Chakana (v3.0):** 6 runas del río se encienden en un orden; memorízalo y engánchalas con el garfio en el mismo orden. Cada nivel suma una runa (como la prueba de bloques de Corsi). 3 vidas, récord y estadísticas de aciertos y precisión. Código en `Assets/_Project/Scripts/MemoryMode.cs`.
+- **3 personajes:** Guerrero, Chasqui y Orejón, con distinta vida, velocidad y garfio.
+- **3 niveles en secuencia:** Chimborazo, Apurímac y Quipaipán. En el modo Clásico, ganar uno abre el siguiente.
+- **Efectos:** polvo al caminar, salpicadura en el río, destello y números de daño, chispas al reflejar y temblor de pantalla.
 - **Escudo** que devuelve el garfio al que lo lanzó.
 - IA con 6 niveles que sube por ronda y cuando vas ganando.
 - Tienda con 8 mejoras, runas en el río, rachas y estadísticas al final de la partida.

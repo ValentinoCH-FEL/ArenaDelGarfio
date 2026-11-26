@@ -70,7 +70,7 @@ public class HUD : MonoBehaviour
         {
             gm.OnScoreChanged += UpdateScore;
             gm.OnCountdown += c => ShowCenter(c > 0 ? c.ToString() : "¡YA!", 0.8f);
-            gm.OnRoundEnded += t => ShowCenter(t == gm.playerTeam ? "¡Ganaste la ronda!" : "Perdiste la ronda", 2.5f);
+            gm.OnRoundEnded += t => ShowCenter(t == (PartidaEnLinea.EsInvitado ? TeamId.Rojo : gm.playerTeam) ? "¡Ganaste la ronda!" : "Perdiste la ronda", 2.5f);
             gm.OnGameOver += _ => ClearMessages();
             gm.OnKill += AddKill;
             gm.OnAnnouncement += msg => announcements.Enqueue(msg);
@@ -189,7 +189,7 @@ public class HUD : MonoBehaviour
             if (scoreText != null)
                 scoreText.text = $"<color=#F28C26>NIVEL {memory.Level}</color>   {phase}   <size=70%>Vidas: {memory.Lives}</size>";
             if (roundText != null)
-                roundText.text = $"Runas del Ancla  ·  Secuencia de {memory.SequenceLength}  ·  Récord: {MemoryMode.Record}  ·  {GameManager.DifficultyNames[GameManager.MenuDifficulty]}";
+                roundText.text = $"Runas de la Chakana  ·  Secuencia de {memory.SequenceLength}  ·  Récord: {MemoryMode.Record}  ·  {GameManager.DifficultyNames[GameManager.MenuDifficulty]}";
             return;
         }
         if (gm.IsSurvival)
@@ -201,8 +201,8 @@ public class HUD : MonoBehaviour
             return;
         }
         if (scoreText != null)
-            scoreText.text = $"<color=#4FA3FF>AZUL {gm.GetKills(TeamId.Azul)}</color>   -   " +
-                             $"<color=#FF5A5A>{gm.GetKills(TeamId.Rojo)} ROJO</color>";
+            scoreText.text = $"<color=#4FA3FF>CUSCO {gm.GetKills(TeamId.Azul)}</color>   -   " +
+                             $"<color=#FF5A5A>{gm.GetKills(TeamId.Rojo)} QUITO</color>";
         if (roundText != null)
             roundText.text = $"Ronda {gm.Round}  ·  Rondas {gm.GetRoundsWon(TeamId.Azul)}-{gm.GetRoundsWon(TeamId.Rojo)}" +
                              $"  ·  Meta {gm.killsToWinRound} kills  ·  {GameManager.DifficultyNames[GameManager.MenuDifficulty]} (IA {gm.Difficulty}/6)";

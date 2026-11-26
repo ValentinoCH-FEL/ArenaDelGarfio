@@ -45,12 +45,12 @@ public class GameOverUI : MonoBehaviour
         {
             title = playerWon ? "¡GANA EL JUGADOR 1!" : "¡GANA EL JUGADOR 2!";
             color = playerWon ? new Color(0.31f, 0.64f, 1f) : new Color(1f, 0.35f, 0.35f);
-            result = $"Rondas: Azul {gm.GetRoundsWon(TeamId.Azul)} - {gm.GetRoundsWon(TeamId.Rojo)} Rojo";
+            result = $"Rondas: Cusco (Huáscar) {gm.GetRoundsWon(TeamId.Azul)} - {gm.GetRoundsWon(TeamId.Rojo)} Quito (Atahualpa)";
         }
         else
         {
             title = playerWon ? "¡VICTORIA!" : "DERROTA";
-            result = $"Rondas: Azul {gm.GetRoundsWon(TeamId.Azul)} - {gm.GetRoundsWon(TeamId.Rojo)} Rojo";
+            result = $"Rondas: Cusco (Huáscar) {gm.GetRoundsWon(TeamId.Azul)} - {gm.GetRoundsWon(TeamId.Rojo)} Quito (Atahualpa)";
         }
 
         Unit player = Unit.FindPlayer();
@@ -70,9 +70,30 @@ public class GameOverUI : MonoBehaviour
             titleText.text = title;
             titleText.color = color;
         }
+        // Campaña: al ganar un nivel se puede pasar directo al siguiente
+        if (GameSession.Mode == GameMode.Clasico && playerWon)
+        {
+            if (Niveles.Siguiente != null) AddNextButton();
+            else result = "¡Ganaste la campaña! El Cusco de Huáscar cambió la historia.\n" + result;
+        }
         if (detailText != null) detailText.text = result + "\n" + stats;
 
         Layout();
+    }
+
+    void AddNextButton()
+    {
+        Button template = panel.GetComponentInChildren<Button>(true);
+        if (template == null || template.transform.parent.Find("Siguiente") != null) return;
+
+        Button next = Instantiate(template, template.transform.parent);
+        next.name = "Siguiente";
+        next.transform.SetSiblingIndex(template.transform.GetSiblingIndex()); // Va primero
+        next.onClick = new Button.ButtonClickedEvent();
+        string scene = Niveles.Siguiente;
+        next.onClick.AddListener(() => { AudioManager.Play(Sfx.Click); SceneLoader.Load(scene); });
+        TMP_Text label = next.GetComponentInChildren<TMP_Text>(true);
+        if (label != null) label.text = "Siguiente nivel";
     }
 
     // Acomoda el título, el detalle y los botones para que entren las estadísticas
@@ -106,7 +127,9 @@ public class GameOverUI : MonoBehaviour
     public void Retry()
     {
         AudioManager.Play(Sfx.Click);
-        SceneLoader.ReloadCurrent();
+        if (!PartidaEnLinea.Activa) SceneLoader.ReloadCurrent();
+        else if (PartidaEnLinea.EsAnfitrion) PartidaEnLinea.Empezar(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        else if (detailText != null) detailText.text = "Espera: la revancha la inicia el anfitrión.";
     }
 
     public void GoToMenu()

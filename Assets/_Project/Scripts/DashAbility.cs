@@ -17,6 +17,8 @@ public class DashAbility : MonoBehaviour
     public bool IsReady => Time.time >= nextReadyTime && !IsDashing;
     public float CooldownPercent => cooldown <= 0f ? 0f : Mathf.Clamp01((nextReadyTime - Time.time) / cooldown);
 
+    public void SetRemoteCooldown(float percent) => nextReadyTime = Time.time + percent * cooldown;
+
     float nextReadyTime;
     Unit owner;
     PlayerController player;

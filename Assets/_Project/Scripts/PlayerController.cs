@@ -37,7 +37,8 @@ public class PlayerController : MonoBehaviour
         Move();
         if (status == null || status.CanAct) // Atrapado en la red ni siquiera gira
         {
-            if (playerIndex == 0) LookAtMouse();
+            if (playerIndex == 1 && PartidaEnLinea.EsAnfitrion) LookAtRemoteAim();
+            else if (playerIndex == 0) LookAtMouse();
             else LookByDirection();
         }
     }
@@ -60,6 +61,15 @@ public class PlayerController : MonoBehaviour
 
     void LookAtMouse()
     {
+        // Con una orden de voz se apunta al objetivo en vez de al mouse
+        if (VozControl.Mira.HasValue)
+        {
+            AimPoint = VozControl.Mira.Value;
+            Vector3 toTarget = AimPoint - transform.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude > 0.01f) transform.rotation = Quaternion.LookRotation(toTarget);
+            return;
+        }
         if (UnityEngine.InputSystem.Mouse.current == null || cam == null) return;
 
         Ray ray = cam.ScreenPointToRay(UnityEngine.InputSystem.Mouse.current.position.ReadValue());
@@ -73,6 +83,15 @@ public class PlayerController : MonoBehaviour
             if (lookDir.sqrMagnitude > 0.01f)
                 transform.rotation = Quaternion.LookRotation(lookDir);
         }
+    }
+
+    // En línea: apunta donde está el mouse del invitado
+    void LookAtRemoteAim()
+    {
+        AimPoint = PartidaEnLinea.Remoto.apuntar;
+        Vector3 lookDir = AimPoint - transform.position;
+        lookDir.y = 0f;
+        if (lookDir.sqrMagnitude > 0.01f) transform.rotation = Quaternion.LookRotation(lookDir);
     }
 
     // Jugador 2: apunta con la palanca derecha del mando o hacia donde camina

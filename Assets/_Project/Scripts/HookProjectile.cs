@@ -162,6 +162,7 @@ public class HookProjectile : MonoBehaviour
         if (hitEffectPrefab != null) Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
         AudioManager.Play(Sfx.GarfioPared);
         CameraFollow.Shake(0.3f, 0.2f);
+        Efectos.Chispas(transform.position);
 
         Unit attacker = Ability.Owner;
         if (defender.isPlayer) MatchStats.Reflects++;

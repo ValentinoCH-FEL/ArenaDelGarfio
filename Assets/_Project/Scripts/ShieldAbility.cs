@@ -46,6 +46,13 @@ public class ShieldAbility : MonoBehaviour
         if (InputMap.Shield(player.playerIndex)) TryActivate();
     }
 
+    // En línea, el invitado copia el escudo del anfitrión
+    public void SetRemote(bool active, float secondsLeft)
+    {
+        activeUntil = active ? Time.time + 0.2f : 0f;
+        nextReadyTime = Time.time + secondsLeft;
+    }
+
     public bool TryActivate()
     {
         if (!IsReady || owner == null) return false;

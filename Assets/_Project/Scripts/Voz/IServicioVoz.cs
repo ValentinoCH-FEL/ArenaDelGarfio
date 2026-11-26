@@ -14,9 +14,13 @@ public interface IServicioVoz
     // Empieza a escuchar el micrófono. Cuando entiende una frase dispara AlReconocer.
     void EmpezarAEscuchar();
     void DejarDeEscuchar();
+    bool Escuchando { get; }
 
     // Texto que entendió (por ejemplo: "lanza el garfio")
     event Action<string> AlReconocer;
+
+    // Lo que va entendiendo mientras hablas (todavía puede cambiar)
+    event Action<string> AlOir;
 
     // Mensaje de error para mostrar en pantalla (sin micrófono, sin permiso, etc.)
     event Action<string> AlFallar;

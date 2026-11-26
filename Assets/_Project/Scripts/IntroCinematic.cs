@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-// Intro animada: cuenta con imágenes por qué se enfrentan los dos clanes.
+// Intro animada: cuenta con imágenes la guerra civil inca (fuentes en FUENTES.md).
 // Se muestra una vez al abrir el juego, encima del menú. Cualquier tecla o clic la salta.
 public class IntroCinematic : MonoBehaviour
 {
@@ -12,12 +12,12 @@ public class IntroCinematic : MonoBehaviour
 
     static readonly string[] Captions =
     {
-        "Hace siglos, el río Ankari partió en dos el valle de Garfia.",
-        "En su fondo duerme el Ancla del Titán: quien domine estas aguas tendrá su fuerza.",
-        "Dos clanes pelearon por ella: la <color=#4FA3FF>Marea</color> y la <color=#FF5A5A>Brasa</color>.",
-        "La guerra maldijo el río. Quien lo cruza a pie no vuelve. Los clanes juraron no pisar el agua jamás.",
-        "Pero el pacto no dice nada de <color=#F28C26>traer</color> al enemigo. Así nació el garfio.",
-        "En cada equinoccio, los mejores garfieros luchan de orilla a orilla. Quien gane custodiará el valle.\n<color=#4FA3FF>Tú peleas por la Marea.</color>",
+        "Los Andes, hacia 1527. Muere el Inca Huayna Cápac, señor del Tahuantinsuyo, sin dejar clara su sucesión.",
+        "<color=#4FA3FF>Huáscar</color> es proclamado Inca en el Cusco. Su medio hermano <color=#FF5A5A>Atahualpa</color> queda en Quito con los ejércitos del norte.",
+        "En 1529 estalla la guerra civil. Atahualpa tiene de su lado a los generales Quisquis y Chalcuchímac.",
+        "Tras la victoria de Chimborazo, las tropas de Quito avanzan hacia el sur, batalla tras batalla.",
+        "En 1532 cruzan el río Apurímac. Cerca del Cusco, en Quipaipán, Huáscar es derrotado y capturado.",
+        "Ese mismo año Pizarro apresa a Atahualpa en Cajamarca. Pero hoy la historia está en tus manos.\n<color=#4FA3FF>Tú peleas por el Cusco.</color>",
     };
 
     const float SlideSeconds = 5.2f;

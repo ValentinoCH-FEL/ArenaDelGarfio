@@ -43,6 +43,7 @@ public class ShopUI : MonoBehaviour
 
     void Update()
     {
+        if (PartidaEnLinea.Activa) return; // En línea no hay tienda
         if (Keyboard.current != null && Keyboard.current.bKey.wasPressedThisFrame)
         {
             if (IsOpen) Close();
@@ -69,6 +70,12 @@ public class ShopUI : MonoBehaviour
         IsOpen = false;
         if (GameManager.Instance != null) GameManager.Instance.SetPaused(false);
         AudioManager.Play(Sfx.Click);
+    }
+
+    // Comprar por número (control por voz): 0 es la primera mejora de la lista
+    public void Comprar(int index)
+    {
+        if (index >= 0 && index < items.Count && items[index] != null) Buy(items[index]);
     }
 
     public int GetLevel(ItemData item) => levels.TryGetValue(item, out int lvl) ? lvl : 0;

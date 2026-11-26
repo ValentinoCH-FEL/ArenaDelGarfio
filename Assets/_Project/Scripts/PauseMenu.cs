@@ -9,6 +9,7 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] string menuSceneName = "MainMenu";
 
     bool open;
+    public bool IsOpen => open;
 
     void Start()
     {
@@ -24,7 +25,7 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    void Pause()
+    public void Pause()
     {
         GameManager gm = GameManager.Instance;
         if (ShopUI.IsOpen) return;

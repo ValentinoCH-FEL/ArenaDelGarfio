@@ -46,6 +46,16 @@ public class Health : MonoBehaviour
         OnChanged?.Invoke(Current, maxHealth);
     }
 
+    // En línea, el invitado copia la vida que dice el anfitrión
+    public void SetRemote(float current, float max)
+    {
+        if (Mathf.Approximately(current, Current) && Mathf.Approximately(max, maxHealth)) return;
+        maxHealth = max;
+        Current = current;
+        IsDead = current <= 0f;
+        OnChanged?.Invoke(Current, maxHealth);
+    }
+
     public void ResetHealth()
     {
         IsDead = false;

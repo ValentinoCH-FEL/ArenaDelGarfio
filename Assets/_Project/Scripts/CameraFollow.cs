@@ -11,6 +11,7 @@ public class CameraFollow : MonoBehaviour
     static CameraFollow instance;
     float shakeUntil;
     float shakeStrength;
+    Vector3 fixedPosition;
 
     void Awake()
     {
@@ -38,6 +39,7 @@ public class CameraFollow : MonoBehaviour
         {
             target = null;
             transform.SetPositionAndRotation(new Vector3(0f, 30f, 0f), Quaternion.Euler(90f, 0f, 0f));
+            fixedPosition = transform.position;
             return;
         }
 
@@ -60,9 +62,9 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
-        if (target == null) return;
-        Vector3 desired = target.position + offset;
-        transform.position = Vector3.Lerp(transform.position, desired, smooth * Time.deltaTime);
+        if (target == null && fixedPosition == Vector3.zero) return;
+        Vector3 desired = target != null ? target.position + offset : fixedPosition;
+        transform.position = target != null ? Vector3.Lerp(transform.position, desired, smooth * Time.deltaTime) : desired;
 
         if (Time.unscaledTime < shakeUntil && Time.timeScale > 0f)
             transform.position += Random.insideUnitSphere * shakeStrength;

@@ -129,6 +129,14 @@ public class StatusEffects : MonoBehaviour
         }
     }
 
+    // En línea, el invitado copia los estados del anfitrión
+    public void SetRemote(bool rooted, bool phased, bool pulled)
+    {
+        rootedUntil = rooted ? Time.time + 0.2f : 0f;
+        phasedUntil = phased ? Time.time + 0.2f : 0f;
+        IsPulled = pulled;
+    }
+
     public void ClearAll()
     {
         rootedUntil = 0f;

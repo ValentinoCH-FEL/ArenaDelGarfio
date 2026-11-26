@@ -6,8 +6,7 @@ using UnityEngine;
 //     ServicioVoz.Actual.AlReconocer += texto => { ... };
 //     ServicioVoz.Actual.Hablar("Hola", PerfilJugador.Sexo);
 //
-// Por ahora devuelve el servicio SIMULADO. Cuando el equipo programe las versiones reales,
-// solo hay que cambiar Crear() para que use VozWindows o VozWeb (TAREAS_EQUIPO.md, tarea V2/V3).
+// En Windows usa VozWindows, en el navegador VozWeb y en otros sistemas la versión de prueba.
 public static class ServicioVoz
 {
     static IServicioVoz actual;
@@ -16,9 +15,13 @@ public static class ServicioVoz
 
     static IServicioVoz Crear()
     {
-        // TODO (tarea V2): #if UNITY_STANDALONE_WIN → return new VozWindows();
-        // TODO (tarea V3): #if UNITY_WEBGL && !UNITY_EDITOR → return new VozWeb();
+#if UNITY_WEBGL && !UNITY_EDITOR
+        return new VozWeb();
+#elif UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        return new VozWindows();
+#else
         return new ServicioVozSimulado();
+#endif
     }
 }
 
@@ -28,9 +31,11 @@ public class ServicioVozSimulado : IServicioVoz
 {
     public bool Disponible => true;
     public event Action<string> AlReconocer;
+    public event Action<string> AlOir;
     public event Action<string> AlFallar;
 
     bool escuchando;
+    public bool Escuchando => escuchando;
 
     public void EmpezarAEscuchar() { escuchando = true; Debug.Log("[Voz simulada] Escuchando..."); }
     public void DejarDeEscuchar() { escuchando = false; }

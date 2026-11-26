@@ -18,6 +18,8 @@ public class SpriteCharacter : MonoBehaviour
     Sprite[] frames;
     float animTime, throwUntil, hurtUntil, lastHealth;
     bool facingLeft;
+    float nextDust, lastZ;
+    bool wasPulled;
 
     public int Kind { get; private set; }
 
@@ -93,11 +95,16 @@ public class SpriteCharacter : MonoBehaviour
         if (health != null) health.OnChanged -= OnHealthChanged;
     }
 
-    void OnThrow() { throwUntil = Time.time + 0.3f; }
+    public void OnThrow() { throwUntil = Time.time + 0.3f; }
 
     void OnHealthChanged(float current, float max)
     {
-        if (current < lastHealth - 0.01f) hurtUntil = Time.time + 0.15f;
+        if (current < lastHealth - 0.01f)
+        {
+            hurtUntil = Time.time + 0.15f;
+            Efectos.Golpe(transform.position, lastHealth - current);
+            if (unit != null && unit.isPlayer) CameraFollow.Shake(0.25f, 0.15f);
+        }
         lastHealth = current;
     }
 
@@ -128,6 +135,8 @@ public class SpriteCharacter : MonoBehaviour
             frame = FrameIdle + (int)animTime % 2;
         }
 
+        UpdateEffects(speed > 0.4f && canWalk);
+
         body.sprite = frames[frame];
         body.flipX = facingLeft;
 
@@ -135,5 +144,25 @@ public class SpriteCharacter : MonoBehaviour
         Vector3 p = transform.position;
         body.transform.SetPositionAndRotation(new Vector3(p.x, p.y - 0.9f, p.z - 0.35f), Quaternion.Euler(90f, 0f, 0f));
         body.sortingOrder = PixelArt.DepthOrder(p.z - 0.35f);
+    }
+
+    // Polvo al caminar y salpicadura cuando el garfio lo arrastra por el río (el río está en z = 0)
+    void UpdateEffects(bool walking)
+    {
+        Vector3 p = transform.position;
+        bool pulled = unit != null && unit.Status.IsPulled;
+        bool visible = unit == null || !unit.Status.IsPhased && !unit.Status.IsHidden;
+
+        if (walking && visible && Time.time >= nextDust)
+        {
+            nextDust = Time.time + 0.18f;
+            Efectos.Polvo(new Vector3(p.x, p.y - 0.85f, p.z - 0.5f));
+        }
+
+        if (pulled && wasPulled && lastZ * p.z <= 0f && lastZ != 0f)
+            Efectos.Salpicadura(new Vector3(p.x, p.y - 0.8f, 0f));
+
+        wasPulled = pulled;
+        lastZ = p.z;
     }
 }

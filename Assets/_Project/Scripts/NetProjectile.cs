@@ -11,6 +11,7 @@ public class NetProjectile : MonoBehaviour
     [SerializeField] GameObject hitEffectPrefab;
 
     NetAbility ability;
+    public Unit Owner => ability != null ? ability.Owner : null;
     Vector3 direction;
     float travelled;
     int hitMask;

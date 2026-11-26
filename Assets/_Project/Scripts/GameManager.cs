@@ -9,6 +9,7 @@ using UnityEngine.AI;
 // y Memoria (el jugador solo, repitiendo secuencias de runas con el garfio; ver MemoryMode).
 public enum GameState { Cuenta, Jugando, FinRonda, FinPartida }
 
+[DefaultExecutionOrder(-50)] // Prepara los equipos antes de que la interfaz busque al jugador
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -156,9 +157,56 @@ public class GameManager : MonoBehaviour
         if (IsVersus) SetupSecondPlayer();
         ApplyCharacter();
         if (IsMemory) SetupMemory();
+        VozControl.Reiniciar();
+        gameObject.AddComponent<ComandosVoz>(); // Tecla V: control por voz
 
         foreach (var u in Unit.All.ToArray()) Register(u);
-        StartCoroutine(StartRoundRoutine());
+
+        // En línea la ronda empieza cuando los dos jugadores cargaron la arena
+        if (PartidaEnLinea.EsInvitado) PartidaEnLinea.ElegirJugadorLocal(playerTeam); // Antes de que el HUD busque al jugador
+        if (PartidaEnLinea.Activa) gameObject.AddComponent<PartidaEnLinea>();
+        else StartCoroutine(StartRoundRoutine());
+    }
+
+    public void ComenzarEnLinea() => StartCoroutine(StartRoundRoutine());
+
+    // El invitado no calcula las reglas: copia lo que le manda el anfitrión
+    public void ApplyRemote(int kills0, int kills1, int rounds0, int rounds1, int round, GameState state)
+    {
+        bool changed = kills[0] != kills0 || kills[1] != kills1 || roundsWon[0] != rounds0 || roundsWon[1] != rounds1 || Round != round;
+        kills[0] = kills0;
+        kills[1] = kills1;
+        roundsWon[0] = rounds0;
+        roundsWon[1] = rounds1;
+        Round = round;
+        State = state;
+        if (changed) OnScoreChanged?.Invoke();
+    }
+
+    public void AvisarCuenta(int number) => OnCountdown?.Invoke(number);
+
+    public void AvisarRonda(int round)
+    {
+        OnRoundStarted?.Invoke(round);
+        AudioManager.Play(Sfx.InicioRonda);
+    }
+
+    public void AvisarFinRonda(TeamId winner) => OnRoundEnded?.Invoke(winner);
+
+    public void AvisarFinPartida(bool cuscoWon)
+    {
+        State = GameState.FinPartida;
+        OnGameOver?.Invoke(cuscoWon);
+        AudioManager.Play(Sfx.Victoria);
+    }
+
+    public void AvisarKill(Unit killer, Unit victim)
+    {
+        if (victim == null) return;
+        OnKill?.Invoke(killer, victim);
+        AudioManager.Play(Sfx.Muerte);
+        CameraFollow.Shake(0.3f, 0.2f);
+        if (deathEffectPrefab != null) Instantiate(deathEffectPrefab, victim.transform.position, Quaternion.identity);
     }
 
     void Register(Unit unit)
@@ -170,9 +218,11 @@ public class GameManager : MonoBehaviour
     // Modo 2 Jugadores: un bot rojo pasa a ser controlado por el segundo jugador
     void SetupSecondPlayer()
     {
-        foreach (var u in Unit.All)
+        // Orden fijo: en línea las dos PCs deben elegir al mismo personaje
+        var candidates = Unit.All.FindAll(u => u != null && u.team != playerTeam);
+        candidates.Sort((x, y) => x.SpawnPosition.x.CompareTo(y.SpawnPosition.x));
+        foreach (var u in candidates)
         {
-            if (u == null || u.team == playerTeam) continue;
             BotController bot = u.GetComponent<BotController>();
             if (bot == null) continue;
 
@@ -230,11 +280,13 @@ public class GameManager : MonoBehaviour
     public void NotifyScoreChanged() => OnScoreChanged?.Invoke();
 
     // Aplica al jugador 1 el personaje elegido en el menú (vida, velocidad, garfio y modelo)
-    void ApplyCharacter()
+    void ApplyCharacter() => ApplyCharacter(Unit.FindPlayer(), GameSession.Character);
+
+    public void ApplyCharacter(Unit player, int index)
     {
-        Unit player = Unit.FindPlayer();
-        CharacterInfo info = GameSession.CurrentCharacter;
-        if (player == null || GameSession.Character == 0) return;
+        index = Mathf.Clamp(index, 0, GameSession.Characters.Length - 1);
+        CharacterInfo info = GameSession.Characters[index];
+        if (player == null || index == 0) return;
 
         player.Health.AddMaxHealth(info.health - player.Health.Max);
         var pc = player.GetComponent<PlayerController>();
@@ -246,7 +298,7 @@ public class GameManager : MonoBehaviour
         var sprite = player.GetComponent<SpriteCharacter>();
         if (sprite != null)
         {
-            sprite.SetKind(GameSession.Character);
+            sprite.SetKind(index);
             return;
         }
 
@@ -533,6 +585,7 @@ public class GameManager : MonoBehaviour
         {
             State = GameState.FinPartida;
             bool playerWon = winner == playerTeam;
+            if (playerWon && GameSession.Mode == GameMode.Clasico) Niveles.CompletarActual();
             OnGameOver?.Invoke(playerWon);
             AudioManager.Play(playerWon || IsVersus ? Sfx.Victoria : Sfx.Derrota);
         }
@@ -569,6 +622,7 @@ public class GameManager : MonoBehaviour
 
     public void SetPaused(bool paused)
     {
+        if (PartidaEnLinea.Activa) return; // En línea no se puede congelar la partida del otro
         IsPaused = paused;
         Time.timeScale = paused ? 0f : 1f;
     }

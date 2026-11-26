@@ -406,7 +406,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Unit
   team: 1
   isPlayer: 0
-  displayName: Bot Rojo
+  displayName: Quito
 --- !u!114 &4122119327381161543
 MonoBehaviour:
   m_ObjectHideFlags: 0

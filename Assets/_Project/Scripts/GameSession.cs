@@ -26,17 +26,18 @@ public static class GameSession
 
     public static readonly CharacterInfo[] Characters =
     {
-        new CharacterInfo { name = "Equilibrado", model = null, health = 100, speed = 6f, hookDamage = 35, hookCooldown = 3f,
-            description = "Aldeano del clan Marea: 100 de vida, sin puntos débiles." },
-        new CharacterInfo { name = "Veloz", model = "Modelo_Veloz", health = 75, speed = 7.5f, hookDamage = 30, hookCooldown = 2.4f,
-            description = "Ninja de la orilla: 75 de vida, muy rápido y con recarga corta." },
-        new CharacterInfo { name = "Tanque", model = "Modelo_Tanque", health = 150, speed = 5f, hookDamage = 45, hookCooldown = 3.4f,
-            description = "Gólem de hierro: 150 de vida y garfio pesado, pero lento." },
+        new CharacterInfo { name = "Guerrero", model = null, health = 100, speed = 6f, hookDamage = 35, hookCooldown = 3f,
+            description = "Soldado del Cusco: 100 de vida, sin puntos débiles." },
+        new CharacterInfo { name = "Chasqui", model = "Modelo_Veloz", health = 75, speed = 7.5f, hookDamage = 30, hookCooldown = 2.4f,
+            description = "Mensajero del Inca: 75 de vida, muy rápido y con recarga corta." },
+        new CharacterInfo { name = "Orejón", model = "Modelo_Tanque", health = 150, speed = 5f, hookDamage = 45, hookCooldown = 3.4f,
+            description = "Noble guerrero: 150 de vida y garfio pesado, pero lento." },
     };
 
     public static GameMode Mode
     {
-        get => (GameMode)Mathf.Clamp(PlayerPrefs.GetInt(ModeKey, 0), 0, 3);
+        // En línea se juega con las reglas de 2 Jugadores, sin cambiar el modo guardado
+        get => PartidaEnLinea.Activa ? GameMode.Versus : (GameMode)Mathf.Clamp(PlayerPrefs.GetInt(ModeKey, 0), 0, 3);
         set { PlayerPrefs.SetInt(ModeKey, (int)value); PlayerPrefs.Save(); }
     }
 
@@ -67,8 +68,11 @@ public static class InputMap
 {
     static Gamepad Pad(int player) => player == 1 ? Gamepad.current : null;
 
+    static bool IsRemote(int player) => player == 1 && PartidaEnLinea.EsAnfitrion;
+
     public static Vector2 Move(int player)
     {
+        if (IsRemote(player)) return Vector2.ClampMagnitude(PartidaEnLinea.Remoto.mover, 1f);
         Vector2 v = Vector2.zero;
         var kb = Keyboard.current;
         if (kb != null)
@@ -90,6 +94,7 @@ public static class InputMap
         }
         var pad = Pad(player);
         if (pad != null && pad.leftStick.ReadValue().magnitude > 0.25f) v = pad.leftStick.ReadValue();
+        if (player == 0 && v == Vector2.zero) v = VozControl.Direccion; // El teclado manda sobre la voz
         return Vector2.ClampMagnitude(v, 1f);
     }
 
@@ -102,31 +107,35 @@ public static class InputMap
 
     public static bool Hook(int player)
     {
+        if (IsRemote(player)) return PartidaEnLinea.Remoto.garfio;
         var kb = Keyboard.current; var pad = Pad(player);
         if (player == 0)
-            return (kb != null && kb.qKey.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame);
+            return VozControl.Pulsado(VozControl.Boton.Garfio) || (kb != null && kb.qKey.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame);
         return (kb != null && kb.periodKey.wasPressedThisFrame) || (pad != null && pad.rightTrigger.wasPressedThisFrame);
     }
 
     public static bool Net(int player)
     {
+        if (IsRemote(player)) return PartidaEnLinea.Remoto.red;
         var kb = Keyboard.current; var pad = Pad(player);
         if (player == 0)
-            return (kb != null && kb.eKey.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame);
+            return VozControl.Pulsado(VozControl.Boton.Red) || (kb != null && kb.eKey.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame);
         return (kb != null && kb.commaKey.wasPressedThisFrame) || (pad != null && pad.leftTrigger.wasPressedThisFrame);
     }
 
     public static bool Phase(int player)
     {
+        if (IsRemote(player)) return PartidaEnLinea.Remoto.fase;
         var kb = Keyboard.current; var pad = Pad(player);
-        if (player == 0) return kb != null && kb.spaceKey.wasPressedThisFrame;
+        if (player == 0) return VozControl.Pulsado(VozControl.Boton.Fase) || (kb != null && kb.spaceKey.wasPressedThisFrame);
         return (kb != null && kb.slashKey.wasPressedThisFrame) || (pad != null && pad.buttonSouth.wasPressedThisFrame);
     }
 
     public static bool Shield(int player)
     {
+        if (IsRemote(player)) return PartidaEnLinea.Remoto.escudo;
         var kb = Keyboard.current; var pad = Pad(player);
-        if (player == 0) return kb != null && kb.fKey.wasPressedThisFrame;
+        if (player == 0) return VozControl.Pulsado(VozControl.Boton.Escudo) || (kb != null && kb.fKey.wasPressedThisFrame);
         return (kb != null && kb.mKey.wasPressedThisFrame) || (pad != null && pad.buttonEast.wasPressedThisFrame);
     }
 }

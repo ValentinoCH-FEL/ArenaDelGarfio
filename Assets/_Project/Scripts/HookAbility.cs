@@ -27,6 +27,9 @@ public class HookAbility : MonoBehaviour
     public float CooldownPercent => cooldown <= 0f ? 0f : Mathf.Clamp01((nextReadyTime - Time.time) / cooldown);
     public Vector3 ChainOrigin => firePoint != null ? firePoint.position : transform.position + Vector3.up * 0.5f;
 
+    public HookProjectile Prefab => hookPrefab;
+    public void SetRemoteCooldown(float percent) => nextReadyTime = Time.time + percent * cooldown;
+
     float nextReadyTime;
     HookProjectile activeHook;
     PlayerController player;
